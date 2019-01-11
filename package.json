@@ -1,15 +1,15 @@
 {
-  "name": "myth-keeper",
-  "productName": "Myth Keeper",
+  "name": "my-new-project",
+  "productName": "my-new-project",
   "version": "1.0.0",
-  "description": "Wonderdraft asset manager",
+  "description": "My Electron application description",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --cache --color --ext .jsx,.js src"
+    "lint": "echo \"No linting configured\""
   },
   "keywords": [],
   "author": "Elvanos",
@@ -50,22 +50,13 @@
     "electron-compile": "^6.4.4",
     "electron-devtools-installer": "^2.1.0",
     "electron-squirrel-startup": "^1.0.0",
-    "react": "^15.4.1",
-    "react-dom": "^15.4.1",
-    "react-hot-loader": "^3.0.0-beta.6",
-    "redux": "^4.0.1"
+    "vue": "^2.1.7"
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",
-    "babel-plugin-transform-es2015-classes": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "electron-forge": "^5.2.3",
-    "electron-prebuilt-compile": "4.0.0",
-    "eslint": "^3",
-    "eslint-config-airbnb": "^15",
-    "eslint-plugin-import": "^2",
-    "eslint-plugin-jsx-a11y": "^5",
-    "eslint-plugin-react": "^7"
+    "electron-prebuilt-compile": "4.0.0"
   }
 }

@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -8,7 +8,7 @@ let mainWindow;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
-if (isDevMode) enableLiveReload({ strategy: 'react-hmr' });
+if (isDevMode) enableLiveReload();
 
 const createWindow = async () => {
   // Create the browser window.
@@ -22,7 +22,7 @@ const createWindow = async () => {
 
   // Open the DevTools.
   if (isDevMode) {
-    await installExtension(REACT_DEVELOPER_TOOLS);
+    await installExtension(VUEJS_DEVTOOLS);
     mainWindow.webContents.openDevTools();
   }
 
