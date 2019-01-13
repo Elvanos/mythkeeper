@@ -33,11 +33,11 @@ let rendererConfig = {
     rules: [
       {
         test: /\.scss$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader']
+        use: ['vue-style-loader', 'css-loader', 'sass-loader?data=@import "./src/renderer/assets/sass/globals"']
       },
       {
         test: /\.sass$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader?indentedSyntax']
+        use: ['vue-style-loader', 'css-loader', 'sass-loader?indentedSyntax=1&data=@import "./src/renderer/assets/sass/globals"']
       },
       {
         test: /\.less$/,
