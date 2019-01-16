@@ -5,8 +5,12 @@
         <div class="appGrid">
             <commandSidebar></commandSidebar>
 
-
             <appCommandLine></appCommandLine>
+
+            <moduleCommandBar></moduleCommandBar>
+
+            <moduleWrapper></moduleWrapper>
+
 
         </div>
     </div>
@@ -18,6 +22,8 @@
    import SystemInformation from './LandingPage/SystemInformation'
    import commandSidebar from './layout/commandSidebar'
    import appCommandLine from './layout/appCommandLine'
+   import moduleCommandBar from './layout/moduleCommandBar'
+   import moduleWrapper from './layout/moduleWrapper'
 
 
    export default {
@@ -25,17 +31,22 @@
       components: {
          SystemInformation,
          commandSidebar,
-         appCommandLine
+         appCommandLine,
+         moduleCommandBar,
+         moduleWrapper
+
       },
       methods: {
-         open(link) {
-            this.$electron.shell.openExternal(link)
-         }
+
+      },
+      created(){
+         this.$store.dispatch('refreshAssetList')
       }
    }
 </script>
 
 <style lang="sass">
+    @import "../assets/sass/spritemap"
     @import "../assets/sass/htmlElements"
 </style>
 

@@ -2,21 +2,25 @@
 
     <div>
 
+        themes command line
 
     </div>
-
 
 </template>
 
 <script>
 
+
+
    export default {
-      name: 'assets',
-      components: {
+      name: 'themesCL',
+      components: {},
+      computed: {
+
       },
       methods: {
+         }
 
-      }
    }
 </script>
 

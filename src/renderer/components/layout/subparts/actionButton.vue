@@ -1,5 +1,5 @@
 <template>
-    <div :class="['actionButton', { 'disabled': disabled}]" v-on:click="clickAction" :title="title">
+    <div :class="['actionButton', { 'disabled': disabled}, {'-active': activeButton}]" v-on:click="clickAction" :title="title">
         <div :class="['commandIcon',{ '-collapsed': !isOpened}, action]"> </div>
         {{title}}
     </div>
@@ -11,6 +11,9 @@
       computed: {
          isOpened() {
             return this.$store.getters.getAppBarStatus
+         },
+         activeButton(){
+            return this.$props.action === this.$store.getters.getCurrentModule && this.$store.getters.getAppBarStatus === false
          }
 
       },
@@ -71,15 +74,16 @@
         background-size: $dimension-sidebarWidth 83px
 
         // Border
-        border: 2px solid rgba(45, 21, 5, 0.7)
+        border: 1px solid rgba(45, 21, 5, 0.7)
 
         // Other
         cursor: pointer
         border-radius: 3px
-        box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75)
+        // box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75)
         filter: sepia(65%)
 
-        &:hover:not(.disabled)
+        &:hover:not(.disabled),
+        &.-active
             // Text settings
             color: #ffffff
 

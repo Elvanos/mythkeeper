@@ -22,6 +22,7 @@
         // Display
         display: flex
         position: absolute
+        z-index: 3
 
         // Sizing & positioning
         height: 30px

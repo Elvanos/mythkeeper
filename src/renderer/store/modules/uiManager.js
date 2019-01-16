@@ -37,7 +37,7 @@ const actions = {
          if (appBarOpened) {
             dispatch('setSidebarStatus', false)
          } else {
-            dispatch('setSidebarStatus', true)
+            //dispatch('setSidebarStatus', true)
          }
 
       } else {
