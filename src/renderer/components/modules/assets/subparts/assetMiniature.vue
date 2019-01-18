@@ -1,27 +1,55 @@
 <template>
-    <div class="assetMiniature" :class="{hasSettings: hasSettings}">
+    <div class="assetMiniature" :class="[{hasSettings: hasSettings}, {isBackup: isBackup}]">
         <div class="titleInfo">
-            <div class="title" :title="assetName">
+
+            <div class="title" v-tooltip.top-start="assetName">
+                <slot v-if="isBackup">BACKUP:</slot>
                 {{assetName}}
             </div>
-            <div class="version" :title="`Version: ${assetVersion}`" v-if="assetVersion.length > 0">
-                {{configJSON.basicInformation.version}}
+
+
+            <div class="dataWrapper">
+                <div class="version" v-tooltip.top="`Asset size: ${assetSize}`" v-if="assetSize !== 'N/A'">
+                    {{assetSize}}
+                </div>
+                <div class="version" v-tooltip.top="`Version: ${assetVersion}`" v-if="assetVersion.length > 0">
+                    , {{assetVersion}}v
+                </div>
             </div>
+
         </div>
         <div class="content">
-            <div class="preview" :title="assetPreviewTitle">
-                <img :src="assetPreview">
+            <slot v-if="hasPreview === true">
+                <LightBox
+                        class="previewLightbox"
+                        :showLightBox="false"
+                        ref="lightboxPreview"
+                        :images="assetPreviewLightBoxImageSettings"
+                        :showThumbs="false"
+                ></LightBox>
+            </slot>
+            <div class="preview" v-tooltip.bottom-start="assetPreviewTitle" :class="[{hasPreview: hasPreview}]">
+
+                <slot v-if="hasPreview === true">
+
+                    <img :src="assetPreview" v-on:click="openPreview()">
+                </slot>
+
+                <slot v-if="hasPreview === false">
+                    <img :src="assetPreview">
+                </slot>
+
             </div>
             <div class="textDetails">
 
                 <div class="detailBlock">
                     <div class="contactLine">
                         <div class="miniTitle">
-                            <slot v-if="assetAuthorName !== assetDistributorName">
+                            <slot v-if="assetAuthorName !== assetDistributorName || assetAuthorName === 'N/A'">
                                 Author:
                             </slot>
 
-                            <slot v-if="assetAuthorName === assetDistributorName">
+                            <slot v-if="assetAuthorName === assetDistributorName && assetDistributorName !== 'N/A'">
                                 Author & distributor:
                             </slot>
 
@@ -30,7 +58,7 @@
 
                             <div
                                     v-if="assetAuthorMail"
-                                    :title="`Send author an e-mail: ${assetAuthorMail}`"
+                                    v-tooltip.top="`Send author an e-mail: ${assetAuthorMail}`"
                                     v-on:click="openURL(assetAuthorMail)"
                                     class="icon sprite footer-mail">
 
@@ -38,7 +66,7 @@
 
                             <div
                                     v-if="assetAuthorUrl"
-                                    :title="`Visit author's website: ${assetAuthorUrl}`"
+                                    v-tooltip.top="`Visit author's website: ${assetAuthorUrl}`"
                                     v-on:click="openURL(assetAuthorUrl)"
                                     class="icon sprite general-file-html">
 
@@ -46,9 +74,9 @@
 
                             <div
                                     v-if="assetAuthorDonationURL"
-                                    :title="`Donate to the author: ${assetAuthorDonationURL}`"
+                                    v-tooltip.top="`Donate to the author: ${assetAuthorDonationURL}`"
                                     v-on:click="openURL(assetAuthorDonationURL)"
-                                    class="icon sprite general-donate">
+                                    class="icon sprite general-donate -positive">
 
                             </div>
 
@@ -59,14 +87,15 @@
                     </div>
                 </div>
 
-                <div class="detailBlock" v-if="assetAuthorName !== assetDistributorName">
+                <div class="detailBlock"
+                     v-if="assetAuthorName !== assetDistributorName || assetDistributorName === 'N/A'">
                     <div class="contactLine">
                         <div class="miniTitle">Distributor:</div>
                         <div class="contactIcons">
 
                             <div
                                     v-if="assetDistributorMail"
-                                    :title="`Send distributor an e-mail: ${assetDistributorMail}`"
+                                    v-tooltip.top="`Send distributor an e-mail: ${assetDistributorMail}`"
                                     v-on:click="openURL(assetDistributorMail)"
                                     class="icon sprite footer-mail">
 
@@ -74,7 +103,7 @@
 
                             <div
                                     v-if="assetDistributorUrl"
-                                    :title="`Visit distributor's website: ${assetDistributorUrl}`"
+                                    v-tooltip.top="`Visit distributor's website: ${assetDistributorUrl}`"
                                     v-on:click="openURL(assetDistributorUrl)"
                                     class="icon sprite general-file-html">
 
@@ -82,9 +111,9 @@
 
                             <div
                                     v-if="assetDistributorDonationURL"
-                                    :title="`Donate to the distributor: ${assetDistributorDonationURL}`"
+                                    v-tooltip.top="`Donate to the distributor: ${assetDistributorDonationURL}`"
                                     v-on:click="openURL(assetDistributorDonationURL)"
-                                    class="icon sprite general-donate">
+                                    class="icon sprite general-donate -positive">
 
                             </div>
 
@@ -98,15 +127,135 @@
                 <div class="detailBlock">
                     <div class="contactLine">
                         <div class="miniTitle">
-                            Short description:
+                            <slot v-if="hasCommentary === false">
+                                License:
+                            </slot>
+
+                            <slot v-if="hasCommentary">
+                                License & commentary:
+                            </slot>
+
+                        </div>
+                        <div class="contactIcons">
+
+                            <div
+                                    v-if="assetLicenseURL"
+                                    v-tooltip.top="`Read license online`"
+                                    v-on:click="openURL(assetLicenseURL)"
+                                    class="icon sprite general-file-html">
+
+                            </div>
+
+                            <div
+                                    v-if="assetLicenseFile"
+                                    v-tooltip.top="`Read license offline`"
+                                    v-on:click="openURL(assetLicenseFile)"
+                                    class="icon sprite general-file-html">
+
+                            </div>
+
+                            <div
+                                    v-if="assetCommentaryFile"
+                                    v-tooltip.top="`Read note on the license`"
+                                    v-on:click="openURL(assetCommentaryFile)"
+                                    class="icon sprite general-note-exists -important">
+
+                            </div>
+
                         </div>
                     </div>
-                    <div class="textLine -tagline">
-                        {{assetTagline}}
+                    <div class="textLine">
+                        {{assetLicense}}
+                    </div>
+                </div>
+
+                <div class="detailBlock">
+                    <div class="contactLine">
+                        <div class="miniTitle">
+                            Commercial use:
+                        </div>
+                        <div class="contactIcons">
+
+                            <div
+                                    v-if="assetCommercialURL"
+                                    v-tooltip.top="`Obtain commercial license from the author`"
+                                    v-on:click="openURL(assetCommercialURL)"
+                                    class="icon sprite general-subscription-grey -positive">
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="textLine"
+                         :class="[{'-positive': assetCommercialUse === 'Allowed'},{'-negative': assetCommercialUse !== 'Allowed'}]">
+                        {{assetCommercialUse}}
                     </div>
                 </div>
 
             </div>
+        </div>
+
+        <div class="detailBlock -tagline">
+            <div class="contactLine">
+                <div class="miniTitle">
+                    Short description:
+                </div>
+            </div>
+            <div class="textLine -tagline" v-tooltip.bottom-start="assetTagline">
+                {{assetTagline}}
+            </div>
+        </div>
+
+        <div class="detailBlock -tags">
+            <div class="contactLine">
+                <div class="miniTitle">
+                    Tags:
+                </div>
+            </div>
+            <div class="textLine -tags" v-tooltip.bottom-start="processedAssetTags">
+                {{processedAssetTags}}
+            </div>
+        </div>
+
+        <div class="assetActions">
+            <slot v-if="hasGallery">
+                <div class="button" @click="openGallery()" v-tooltip.bottom-start="`View showcase gallery`">
+                    <div class="sprite general-logo"></div>
+                </div>
+                <LightBox
+                        :showLightBox="false"
+                        ref="lightboxGallery"
+                        :images="assetGalleryLightBoxImageSettings"
+                        :showThumbs="true"
+                ></LightBox>
+            </slot>
+
+            <slot v-if="!isBackup">
+                <div class="button" @click="backupCheckExist()" v-tooltip.bottom-start="`Backup this asset`">
+                    <div class="sprite translate-original-grey"></div>
+                </div>
+            </slot>
+
+            <slot v-if="isBackup">
+                <div class="button" @click="restoreBackupAsset()"
+                     v-tooltip.bottom-start="`Restore backup of this asset`">
+                    <div class="sprite translate-new-grey"></div>
+                </div>
+            </slot>
+
+            <slot v-if="!isBackup">
+                <div class="button" @click="deleteCheckExist()" v-tooltip.bottom-start="`Delete this asset`">
+                    <div class="sprite general-remove"></div>
+                </div>
+            </slot>
+
+            <slot v-if="isBackup">
+                <div class="button" @click="deleteAssetBackupConfirm()" v-tooltip.bottom-start="`Delete backup of this asset`">
+                    <div class="sprite general-remove"></div>
+                </div>
+            </slot>
+
+
         </div>
 
 
@@ -116,25 +265,38 @@
 <script>
 
    const fs = require('fs')
+   const getSize = require('get-folder-size')
    const chokidar = require('chokidar')
+   require('vue-image-lightbox/dist/vue-image-lightbox.min.css')
    import placeholderSymbol from '../../../../assets/images/icons/placeholderSymbol.png'
+   import LightBox from 'vue-image-lightbox'
 
    export default {
       name: "assetMiniature",
+      components: {
+         LightBox
+      },
       props: {
          folder: String
 
       },
       data: function () {
          return {
+            isBackup: false,
+            assetFolder: '',
+            basicPath: '/Wonderdraft/assets/',
+
             configJSON: {},
             hasSettings: false,
             configFileWatched: false,
 
-            assetName: this.$props.folder,
+            assetName: this.assetFolder,
             assetVersion: '',
+
+            hasPreview: false,
             assetPreview: placeholderSymbol,
             assetPreviewTitle: 'No preview',
+            assetPreviewLightBoxImageSettings: [],
 
             assetAuthorName: 'N/A',
             assetAuthorMail: false,
@@ -146,45 +308,200 @@
             assetDistributorUrl: false,
             assetDistributorDonationURL: false,
 
-            assetTagline: 'N/A'
+            assetTagline: 'N/A',
+
+            hasGallery: false,
+            assetGalleryLightBoxImageSettings: [],
+
+            assetLicense: 'N/A',
+            assetLicenseURL: false,
+            assetLicenseFile: false,
+
+            hasCommentary: false,
+            assetCommentaryFile: false,
+
+            assetCommercialUse: 'N/A',
+            assetCommercialURL: false,
+
+            assetTags: ['N/A'],
+
+            assetSize: 'N/A'
 
 
          }
       },
+      computed: {
+         processedAssetTags: function () {
+            return this.assetTags.join(', ')
+         }
+      },
+
       mounted: function () {
-         this.getConfigFile()
+         //this.getConfigFile()
+         this.checkBasicPath()
          this.watchConfigFile()
+         this.getAssetSize()
+
       },
       methods: {
+         checkBasicPath() {
+
+            this.assetFolder = this.$props.folder
+            this.assetName = this.$props.folder
+
+            if (this.$props.folder.includes('mythkeeperBackup')) {
+               this.isBackup = true
+               this.assetFolder = this.$props.folder.replace("mythkeeperBackup", "")
+               this.assetName = this.$props.folder.replace("mythkeeperBackup", "")
+               this.basicPath = '/Wonderdraft/_mythKeeper/backup/assets/'
+            }
+
+         },
+         openPreview() {
+            this.$refs.lightboxPreview.showImage(0)
+         },
+         openGallery() {
+            this.$refs.lightboxGallery.showImage(0)
+         },
          openURL(link) {
             this.$electron.shell.openExternal(link)
          },
+         backupCheckExist() {
+            const userDataFolder = this.$store.getters.getUserDataFolder
+            if (fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + this.assetFolder)) {
+               this.backupAssetConfirm()
+            } else {
+               this.backupAsset()
+            }
+         },
+         backupAssetConfirm() {
+            this.$dialog
+                .confirm('Asset is already backed up. Overwrite with this iteration?')
+                .then(() => {
+                   this.backupAsset()
+                })
+                .catch(() => {
+                })
+         },
+         backupAsset() {
+            this.$store.dispatch('backupAsset', this.assetFolder)
+         },
+         deleteAssetBackupConfirm() {
+            this.$dialog
+                .confirm('Delete backup of the asset? It can be retrieved manually later, but gets removed from the list'
+                   )
+                .then(() => {
+                  this.deleteAssetBackup()
+                })
+                .catch(() => {
+
+                })
+         },
+         deleteAssetBackup() {
+            this.$store.dispatch('deleteAssetBackup', this.assetFolder)
+
+         },
+         deleteCheckExist() {
+            const userDataFolder = this.$store.getters.getUserDataFolder
+            if (fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + this.assetFolder)) {
+               this.deleteAsset()
+            } else {
+               this.deleteAssetConfirm()
+            }
+         },
+         deleteAssetConfirm() {
+            this.$dialog
+                .confirm('This asset is not backed up. Backup before deleting so it can be restored later?',
+                    {
+                       okText: 'Next step'
+                    })
+                .then(() => {
+                   this.deleteAssetConfirm2()
+                })
+                .catch(() => {
+                   //this.deleteAsset()
+                })
+         },
+         deleteAssetConfirm2() {
+            this.$dialog
+                .confirm('Chose to delete with or without backup.',
+                    {
+                       okText: 'Delete & backup',
+                       cancelText: 'Delete'
+                    })
+                .then(() => {
+                   this.backupAsset()
+                   this.deleteAsset()
+
+                })
+                .catch(() => {
+                   this.deleteAsset()
+                })
+         },
+         deleteAsset() {
+            this.$store.dispatch('deleteAsset', this.assetFolder)
+
+            const userDataFolder = this.$store.getters.getUserDataFolder
+
+            if (fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + this.assetFolder)) {
+
+               this.isBackup = true
+            }
+            else{
+               this.$store.dispatch('refreshAssetListCombined')
+            }
+         },
+
+         restoreBackupAsset() {
+            this.$store.dispatch('restoreBackupAsset', this.assetFolder)
+            this.isBackup = false
+            this.getConfigFile()
+         },
+
+         getAssetSize() {
+            const userDataFolder = this.$store.getters.getUserDataFolder
+
+
+            getSize(userDataFolder + this.basicPath + this.assetFolder, (err, size) => {
+               if (err) {
+
+               }
+
+               this.assetSize = (size / 1024 / 1024).toFixed(1) + ' MB'
+            })
+
+         },
          watchConfigFile() {
             const userDataFolder = this.$store.getters.getUserDataFolder
-            const configPath = userDataFolder + '/Wonderdraft/assets/' + this.$props.folder + '/mythKeeperSettings.json';
+            const configPath = userDataFolder + this.basicPath + this.assetFolder + '/mythKeeperSettings.json';
 
             let configFileWatcher = chokidar.watch(configPath, {
                persistent: true
             });
 
-            configFileWatcher.on('add', path => console.log(
-                this.getConfigFile()
-            ))
+            configFileWatcher.on('add', path => {
+                   this.getConfigFile()
+                   this.getAssetSize()
+                }
+            )
 
-            configFileWatcher.on('change', path => console.log(
-                this.getConfigFile()
-            ))
+            configFileWatcher.on('change', path => {
+                   this.getConfigFile()
+                   this.getAssetSize()
+                }
+            )
 
-            configFileWatcher.on('unlink', path => console.log(
-                this.hasSettings = false
-            ));
+            configFileWatcher.on('unlink', path => {
+                   this.hasSettings = false
+                   this.getAssetSize()
+                }
+            );
 
          },
          getConfigFile() {
             const userDataFolder = this.$store.getters.getUserDataFolder
 
-            const configPath = userDataFolder + '/Wonderdraft/assets/' + this.$props.folder + '/mythKeeperSettings.json';
-
+            const configPath = userDataFolder + this.basicPath + this.assetFolder + '/mythKeeperSettings.json';
 
             if (fs.existsSync(configPath)) {
                this.hasSettings = true
@@ -194,25 +511,44 @@
          },
          reloadAssetData() {
             const userDataFolder = this.$store.getters.getUserDataFolder
+
             if (this.configJSON.basicInformation !== undefined) {
 
-               const metaFilesPath = userDataFolder + '/Wonderdraft/assets/' + this.$props.folder + '/metafiles/';
+               const metaFilesPath = userDataFolder + this.basicPath + this.assetFolder + '/metafiles/';
 
                // Get basic info
-               this.assetName = this.configJSON.basicInformation.name
-               this.assetVersion = this.configJSON.basicInformation.version
-               this.assetPreviewTitle = this.assetName
+               if (this.configJSON.basicInformation.name !== undefined) {
+                  this.assetName = this.configJSON.basicInformation.name
+               }
+               if (this.configJSON.basicInformation.version !== undefined) {
+                  this.assetVersion = this.configJSON.basicInformation.version
+               }
 
-               // Get preview image
+               // Get preview image & set preview title
                if (fs.existsSync(metaFilesPath + 'preview.jpg')) {
+                  this.hasPreview = true
                   this.assetPreview = metaFilesPath + 'preview.jpg'
+                  this.assetPreviewTitle = "Click for preview of: " + this.assetName
+                  this.assetPreviewLightBoxImageSettings = [
+                     {
+                        thumb: metaFilesPath + 'preview.jpg',
+                        src: metaFilesPath + 'preview.jpg',
+                     }
+                  ]
                }
                if (fs.existsSync(metaFilesPath + 'preview.png')) {
+                  this.hasPreview = true
                   this.assetPreview = metaFilesPath + 'preview.png'
+                  this.assetPreviewTitle = "Click for preview of: " + this.assetName
+                  this.assetPreviewLightBoxImageSettings = [
+                     {
+                        src: metaFilesPath + 'preview.png',
+                     }
+                  ]
                }
 
                // Get author info
-               if (this.configJSON.basicInformation.author && this.configJSON.basicInformation.author.exists) {
+               if (this.configJSON.basicInformation.author !== undefined && this.configJSON.basicInformation.author.exists) {
 
                   if (this.configJSON.basicInformation.author.name) {
                      this.assetAuthorName = this.configJSON.basicInformation.author.name
@@ -232,7 +568,7 @@
                }
 
                // Get distributor info
-               if (this.configJSON.basicInformation.distributor && this.configJSON.basicInformation.distributor.exists) {
+               if (this.configJSON.basicInformation.distributor !== undefined && this.configJSON.basicInformation.distributor.exists) {
 
                   if (this.configJSON.basicInformation.distributor.name) {
                      this.assetDistributorName = this.configJSON.basicInformation.distributor.name
@@ -252,22 +588,157 @@
                }
 
                // Get tagline
-               if (this.configJSON.basicInformation.tagLine) {
+               if (this.configJSON.basicInformation.tagLine !== undefined) {
                   this.assetTagline = this.configJSON.basicInformation.tagLine
+               }
+
+               // Get gallery
+               if (fs.existsSync(userDataFolder + this.basicPath + this.assetFolder + '/metafiles/gallery')) {
+                  this.hasGallery = true
+
+                  const galleryImages = fs.readdirSync(userDataFolder + this.basicPath + this.assetFolder + '/metafiles/gallery', 'utf8', function (err, data) {
+                     if (err) {
+                        console.log(err)
+
+                     } else {
+                        //console.log(data)
+
+                        return data
+
+                     }
+                  })
+
+                  this.assetGalleryLightBoxImageSettings = []
+
+                  this.assetGalleryLightBoxImageSettings = galleryImages.map(image => {
+
+                     // Fix file pathing for background images
+                     let filePath = 'file:///' + userDataFolder + this.basicPath + this.assetFolder + '/metafiles/gallery/' + image
+                     filePath = filePath.replace(/\\/g, "/")
+
+                     return {
+                        thumb: filePath,
+                        src: userDataFolder + this.basicPath + this.assetFolder + '/metafiles/gallery/' + image,
+                     }
+                  })
+
 
                }
-            }
 
+               // Get license & commentary
+               if (this.configJSON.basicInformation.license !== undefined && this.configJSON.basicInformation.license.hasLicense) {
+
+                  this.assetLicense = this.configJSON.basicInformation.license.type
+
+                  // Get external link
+                  if (this.configJSON.basicInformation.license.externalLink) {
+
+                     switch (this.configJSON.basicInformation.license.type) {
+
+                        case 'CC BY 4.0':
+                           // code block
+                           this.assetLicenseURL = 'https://creativecommons.org/licenses/by/4.0/'
+                           break
+
+                         // Try google if we dont get a match
+                        default:
+                           this.assetLicenseURL = 'https://www.google.com/search?q=license ' + this.configJSON.basicInformation.license.type
+                     }
+
+                  }
+
+                  // Get local file
+                  if (this.configJSON.basicInformation.license.localFile) {
+
+                     if (fs.existsSync(metaFilesPath + 'license.pdf')) {
+                        this.assetLicenseFile = metaFilesPath + 'license.pdf'
+                     }
+                     else {
+                        // Try google if the file isnt there
+                        this.assetLicenseURL = 'https://www.google.com/search?q=license ' + this.configJSON.basicInformation.license.type
+                     }
+
+                  }
+
+                  // Get commentary file
+                  if (this.configJSON.basicInformation.license.commentary) {
+
+                     this.hasCommentary = false
+
+                     // Try txt
+                     if (fs.existsSync(metaFilesPath + 'commentary.txt')) {
+                        this.assetCommentaryFile = metaFilesPath + 'commentary.txt'
+                        this.hasCommentary = true
+                     }
+
+                     // Try PDF, preferred
+                     if (fs.existsSync(metaFilesPath + 'commentary.pdf')) {
+                        this.assetCommentaryFile = metaFilesPath + 'commentary.pdf'
+                        this.hasCommentary = true
+                     }
+
+
+                  }
+
+               }
+
+               // Get commercial use info
+               if (this.configJSON.basicInformation.commercialUse !== undefined) {
+
+                  if (this.configJSON.basicInformation.commercialUse) {
+                     this.assetCommercialUse = 'Allowed'
+                  } else {
+                     this.assetCommercialUse = 'Not-allowed'
+                  }
+
+                  if (this.configJSON.basicInformation.commercialURL) {
+                     this.assetCommercialURL = this.configJSON.basicInformation.commercialURL
+                  }
+
+               }
+
+               // Get tags
+               if (this.configJSON.basicInformation.tags !== undefined) {
+                  this.assetTags = this.configJSON.basicInformation.tags
+               }
+            }
          }
       }
    }
 </script>
 
+<style lang="sass">
+    .vue-lb-content
+        background-image: url('~@/assets/images/backgrounds/assetMiniatureBackground.png')
+        border: 30px solid
+        border-radius: 10px
+        margin: 0
+        border-image: url('~@/assets/images/backgrounds/topBarBackground.jpg') 50 round
+        transition: $transition-DefaultType all 0.5s !important
+
+        .vue-lb-button-close,
+        .vue-lb-footer,
+        .vue-lb-header
+            display: none !important
+
+        .vue-lb-thumbnail-wrapper
+            display: none !important
+
+        .vue-lb-figure
+            transition: $transition-DefaultType all 0.5s !important
+            img
+                transition: $transition-DefaultType all 0.5s !important
+
+
+</style>
+
 <style lang="sass" scoped>
+
+
     .assetMiniature
         font-family: "Montserrat", sans-serif
-        width: 400px
-        height: 350px
+        width: 450px
+        height: 405px
         background-color: rgba(43, 43, 43, 0.9)
         margin: 50px
         color: #fff
@@ -280,8 +751,18 @@
                 .title
                     color: #a8d790
 
+        &.isBackup
+            filter: grayscale(85%)
+            background-color: rgba(0, 0, 0, 0.8)
+
         .icon
             cursor: pointer
+
+            &.-important
+                filter: invert(40%) grayscale(100%) brightness(60%) sepia(100%) hue-rotate(-50deg) saturate(400%) contrast(2)
+
+            &.-positive
+                filter: grayscale(100%) brightness(50%) sepia(100%) hue-rotate(50deg) saturate(600%) contrast(0.8)
 
         .titleInfo
             display: flex
@@ -296,61 +777,173 @@
                 white-space: nowrap
                 overflow: hidden
                 text-overflow: ellipsis
-                width: 245px
+                flex-grow: 1
                 flex-shrink: 0
                 color: #d7896c
+                max-width: 315px
 
-            .version
-                font-family: "Elementary Gothic", sans-serif
-                color: #8f9298
-                font-size: 12px
+            .dataWrapper
+                flex-shrink: 0
+                display: flex
+
+                .version
+                    font-family: "Elementary Gothic", sans-serif
+                    color: #8f9298
+                    font-size: 8.5px
+                    flex-shrink: 0
 
         .content
             display: flex
 
             .preview
-                width: 150px
-                height: 150px
+                width: 200px
+                height: 200px
                 background-image: url('~@/assets/images/backgrounds/assetMiniatureBackground.png')
+                border-radius: 3px
 
                 display: flex
                 justify-content: center
                 align-items: center
                 flex-shrink: 0
+                position: relative
+
+                &:before
+                    content: ''
+                    +M_AbsoluteFullCover
+                    background-color: rgba(0, 0, 0, .25)
 
                 img
                     max-height: 80%
                     max-width: 80%
 
-            .textDetails
-                padding-top: 5px
-                padding-left: 15px
-                flex-grow: 1
+                &.hasPreview
+                    cursor: pointer
+                    transition: $transition-DefaultType 0.5s all
 
-                .detailBlock
-                    margin-bottom: 15px
+                    &:before
+                        display: none
 
-                    .contactLine
-                        display: flex
-                        flex-grow: 1
-                        justify-content: space-between
-                        margin-bottom: 2px
+                    img
+                        transition: $transition-DefaultType 0.5s all
+                        cursor: pointer
 
-                        .miniTitle
-                            font-family: "Titania", sans-serif
-                            font-size: 13px
-                            color: #b8b8b8
+                    &:hover
+                        box-shadow: inset 0 0 50px 10px #fff
+                        img
+                            max-height: 100%
+                            max-width: 100%
 
-                        .contactIcons
-                            display: flex
+        .textDetails
+            padding-top: 5px
+            padding-left: 15px
+            flex-grow: 1
 
-                            .icon
-                                margin-left: 7px
-                                transform: scale(0.85)
+            > div:last-child
+                margin-bottom: 0
 
-                    .textLine
-                        font-size: 16px
+        .detailBlock
+            margin-bottom: 15px
 
-                        &.-tagline
-                            font-size: 13px
+            &.-tagline
+                margin-top: 15px
+
+        .contactLine
+            display: flex
+            flex-grow: 1
+            align-items: flex-end
+            justify-content: space-between
+            margin-bottom: 2px
+
+            .miniTitle
+                font-family: "Titania", sans-serif
+                font-size: 13px
+                color: #b8b8b8
+
+            .contactIcons
+                display: flex
+
+                .icon
+                    margin-left: 7px
+                    transform: scale(0.85)
+
+        .textLine
+            font-size: 16px
+
+            &.-positive
+                color: #a8d790
+
+            &.-negative
+                color: #d7896c
+
+            &.-tagline
+                font-size: 13px
+                display: -webkit-box
+                -webkit-line-clamp: 2
+                -webkit-box-orient: vertical
+                overflow: hidden
+
+            &.-tags
+                font-size: 13px
+                white-space: nowrap
+                overflow: hidden
+                text-overflow: ellipsis
+                width: 100%
+
+        .assetActions
+            display: flex
+
+            .button
+                position: relative
+                flex-grow: 0
+
+                // Display
+                overflow: hidden
+                display: flex
+                justify-content: center
+                align-items: center
+
+                // Sizing & positioning
+                position: relative
+                height: 40px
+                width: 40px
+                margin-left: 10px
+
+                // Background
+                background-image: url('~@/assets/images/backgrounds/buttonBackground.png')
+                background-size: 105px
+                background-position-y: -6px
+
+                // Border
+                //border: 1px solid rgba(45, 21, 5, 0.7)
+                border: 1px solid rgba(45, 21, 5, 0.7)
+
+                // Other
+                cursor: pointer
+                border-radius: 3px
+
+                filter: sepia(65%)
+
+                &:first-child
+                    margin-left: 0
+
+                &:hover:not(.disabled),
+                &.-active
+                    // Text settings
+                    color: #ffffff
+
+                    // Other
+                    filter: sepia(0%)
+
+                &.disabled
+                    cursor: no-drop
+                    filter: grayscale(1) !important
+
+                .sprite
+                    // Sizing & positioning
+                    filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
+
+                    pointer-events: none
+    //transition: $transition-DefaultType 0.5s all, linear 0s background-image
+
+
 </style>

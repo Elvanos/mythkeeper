@@ -41,6 +41,7 @@
       },
       created(){
          this.$store.dispatch('refreshAssetList')
+         this.$store.dispatch('refreshAssetListBackup')
       }
    }
 </script>
@@ -48,6 +49,8 @@
 <style lang="sass">
     @import "../assets/sass/spritemap"
     @import "../assets/sass/htmlElements"
+    @import "../assets/sass/tooltipPlugin"
+
 </style>
 
 <style lang="sass" scoped>

@@ -1,25 +1,71 @@
 <template>
 
-    <div
-            :class="['commandBarButton', { 'disabled': disabled}]"
-            :title="title"
-            v-on:click="action"
-    >
+    <div>
+        <slot v-if="!this.$props.confirmMessage">
+            <div
+                    :class="['commandBarButton', { 'disabled': disabled}]"
+                    :title="title"
+                    v-on:click="nonConfirmAction">
 
-        <div class="commandIcon sprite"
-             :class="[commandIcon]">
-        </div>
+                <div class="commandIcon sprite"
+                     :class="[commandIcon]">
+                </div>
+
+            </div>
+        </slot>
+
+        <slot v-if="this.$props.confirmMessage">
+            <div
+                    :class="['commandBarButton', { 'disabled': disabled}]"
+                    :title="title"
+                    v-on:click="confirmAction">
+
+                <div class="commandIcon sprite"
+                     :class="[commandIcon]">
+                </div>
+
+            </div>
+        </slot>
 
     </div>
+
+
 </template>
 
 <script>
    export default {
       name: "commandBarButton",
       computed: {},
+      data: function () {
+         return {}
+      },
+      methods: {
+
+         nonConfirmAction(event) {
+            if (!event.target.classList.contains('disabled')) {
+               this.$props.action()
+            }
+         },
+         confirmAction(event) {
+
+            // Dont trigger if disabled
+            if (!event.target.classList.contains('disabled')) {
+               this.$dialog
+                   .confirm(this.$props.confirmMessage)
+                   .then(() => {
+
+                      this.$props.action()
+                   })
+                   .catch(() => {
+                   })
+            }
+
+         }
+      },
       props: {
          title: String,
-         action: null,
+         action: false,
+         confirmMessage: false,
          disabled: {
             type: Boolean,
             default: false,
@@ -30,8 +76,7 @@
          },
 
       },
-      methods: {
-      }
+
    }
 </script>
 
@@ -48,6 +93,7 @@
         position: relative
         height: 40px
         width: 40px
+        margin-left: 10px
 
         // Background
         background-image: url('~@/assets/images/backgrounds/buttonBackground.png')
@@ -69,9 +115,6 @@
             // Text settings
             color: #ffffff
 
-            // Sizing & positioning
-            margin-left: 5px
-
             // Other
             filter: sepia(0%)
 
@@ -81,12 +124,10 @@
 
         .commandIcon
             // Sizing & positioning
-            filter:  drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
+            filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
 
             pointer-events: none
             transition: $transition-DefaultType 0.5s all
-
-
 
 
 </style>

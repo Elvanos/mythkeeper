@@ -2,6 +2,7 @@
 
 *
 	user-select: none
+	cursor: default
 
 body
 	font-family: 'Titania', sans-serif
@@ -13,7 +14,7 @@ body
 	&:before
 		content: ''
 		+M_AbsoluteFullCover
-		background-image: url("../assets/images/backgrounds/mainContainerBackground.jpg")
+		background-image: url("../assets/images/backgrounds/mainContainerBackground.png")
 		background-size: cover
-		background-position: right top
-		//filter: blur(0.2)
+		background-position: 20px 20px
+		filter: blur(1px) sepia(70%) brightness(75%)

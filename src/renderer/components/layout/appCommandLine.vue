@@ -1,7 +1,7 @@
 <template>
     <div class="appCommandLine" :class="{ '-collapsed': !isOpened}">
 
-        <div class="settings -gear" title="Settings"></div>
+        <div class="settings -gear" v-tooltip.top-start="`Settings`"></div>
 
     </div>
 </template>

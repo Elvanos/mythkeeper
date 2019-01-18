@@ -1,6 +1,8 @@
 <template>
-    <div :class="['actionButton', { 'disabled': disabled}, {'-active': activeButton}]" v-on:click="clickAction" :title="title">
-        <div :class="['commandIcon',{ '-collapsed': !isOpened}, action]"> </div>
+    <div
+            :class="['actionButton', { 'disabled': disabled}, {'-active': activeButton}]" v-on:click="clickAction"
+            v-tooltip.right="title">
+        <div :class="['commandIcon',{ '-collapsed': !isOpened}, action]"></div>
         {{title}}
     </div>
 </template>
@@ -12,7 +14,7 @@
          isOpened() {
             return this.$store.getters.getAppBarStatus
          },
-         activeButton(){
+         activeButton() {
             return this.$props.action === this.$store.getters.getCurrentModule && this.$store.getters.getAppBarStatus === false
          }
 
@@ -110,7 +112,6 @@
             background-repeat: no-repeat
             pointer-events: none
 
-
             // Other
             transition: $transition-DefaultType 0.6s all
 
@@ -131,7 +132,6 @@
                 height: 40px
                 +M_CenterAbsolute
                 transition: $transition-DefaultType 0.5s all
-
 
 
 </style>

@@ -3,9 +3,9 @@
     <div class="assetGrid">
 
         <assetMiniature
-                v-for="(singleAssetFolder, index) in folderList" :key="`singleAssetFolder-${index}`"
-
+                v-for="(singleAssetFolder) in folderList" :key="`singleAssetFolder-${singleAssetFolder}`"
                 :folder="singleAssetFolder">
+
         </assetMiniature>
 
     </div>
@@ -20,9 +20,18 @@
    export default {
       name: 'assets',
       components: {assetMiniature},
+      mounted: function () {
+           this.$store.dispatch('refreshAssetListCombined')
+
+      },
+      data: function(){
+         return{
+         }
+      },
       computed: {
-         folderList() {
-            return this.$store.getters.getAssetList
+         folderList(){
+
+             return this.$store.getters.getAssetListCombined
          }
       },
       methods: {}
