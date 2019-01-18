@@ -1,6 +1,7 @@
 const state = {
    appBarOpened: true,
-   currentModule: null
+   currentModule: null,
+   isAppEnabled: true
 }
 
 const getters ={
@@ -9,6 +10,9 @@ const getters ={
    },
    getCurrentModule: (state) => {
       return state.currentModule
+   },
+   getAppStatus: (state) => {
+      return state.isAppEnabled
    }
 }
 
@@ -18,10 +22,24 @@ const mutations = {
    },
    SET_CURRENT_MODULE(state, value) {
       state.currentModule = value
+   },
+   APP_DISABLE(state) {
+      state.isAppEnabled = false
+   },
+   APP_ENABLE(state) {
+      state.isAppEnabled = true
    }
 }
 
 const actions = {
+
+   setAppStatusDisabled({commit}) {
+      commit('APP_DISABLE')
+   },
+
+   setAppStatusEnabled({commit}) {
+      commit('APP_ENABLE')
+   },
 
    setSidebarStatus({commit}, value) {
       commit('SET_SIDEBAR_OPEN_STATUS',value)

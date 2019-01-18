@@ -1,5 +1,15 @@
 <template>
-    <div class="assetMiniature" :class="[{hasSettings: hasSettings}, {isBackup: isBackup}]">
+    <div class="assetMiniature" :class="[{hasSettings: hasSettings}, {isBackup: isBackup}, {isDisabled: isDisabled}]">
+
+        <div class="masterOverlay" v-if="isDisabled">
+            <div class="overlayContentWrapper">
+                <div class="spinnerWrapper">
+                    <Spinner name="circle"/>
+                </div>
+                <div class="overlayMessage">Processing request</div>
+            </div>
+
+        </div>
         <div class="titleInfo">
 
             <div class="title" v-tooltip.top-start="assetName">
@@ -250,7 +260,8 @@
             </slot>
 
             <slot v-if="isBackup">
-                <div class="button" @click="deleteAssetBackupConfirm()" v-tooltip.bottom-start="`Delete backup of this asset`">
+                <div class="button" @click="deleteAssetBackupConfirm()"
+                     v-tooltip.bottom-start="`Delete backup of this asset`">
                     <div class="sprite general-remove"></div>
                 </div>
             </slot>
@@ -282,7 +293,9 @@
       },
       data: function () {
          return {
+
             isBackup: false,
+            isDisabled: false,
             assetFolder: '',
             basicPath: '/Wonderdraft/assets/',
 
@@ -384,21 +397,40 @@
                 })
          },
          backupAsset() {
-            this.$store.dispatch('backupAsset', this.assetFolder)
+            this.isDisabled = true
+            this.$store.dispatch('backupAsset', this.assetFolder).then(() => {
+
+               this.$awn.success("Asset backed up")
+               this.isDisabled = false
+
+            })
          },
          deleteAssetBackupConfirm() {
             this.$dialog
                 .confirm('Delete backup of the asset? It can be retrieved manually later, but gets removed from the list'
-                   )
+                )
                 .then(() => {
-                  this.deleteAssetBackup()
+                   this.deleteAssetBackup()
                 })
                 .catch(() => {
 
                 })
          },
          deleteAssetBackup() {
+            this.isDisabled = true
             this.$store.dispatch('deleteAssetBackup', this.assetFolder)
+                .then(() => {
+
+                   this.$awn.success("Asset backup deleted")
+                   this.isDisabled = false
+
+                   const userDataFolder = this.$store.getters.getUserDataFolder
+                   setTimeout(() => {
+                      this.$store.dispatch('refreshAssetListCombined')
+
+                   }, 250);
+
+                })
 
          },
          deleteCheckExist() {
@@ -436,26 +468,43 @@
                 })
                 .catch(() => {
                    this.deleteAsset()
+
                 })
          },
          deleteAsset() {
+            this.isDisabled = true
             this.$store.dispatch('deleteAsset', this.assetFolder)
+                .then(() => {
 
-            const userDataFolder = this.$store.getters.getUserDataFolder
+                   this.$awn.success("Asset deleted")
+                   this.isDisabled = false
 
-            if (fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + this.assetFolder)) {
+                   const userDataFolder = this.$store.getters.getUserDataFolder
 
-               this.isBackup = true
-            }
-            else{
-               this.$store.dispatch('refreshAssetListCombined')
-            }
+                   if (fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + this.assetFolder)) {
+                      this.isBackup = true
+
+                   }
+                   else {
+                      setTimeout(() => {
+                         this.$store.dispatch('refreshAssetListCombined')
+                      }, 250);
+
+                   }
+                })
+
          },
 
          restoreBackupAsset() {
-            this.$store.dispatch('restoreBackupAsset', this.assetFolder)
-            this.isBackup = false
-            this.getConfigFile()
+            this.isDisabled = true
+            this.$store.dispatch('restoreBackupAsset', this.assetFolder).then(() => {
+               setTimeout(() => {
+                  this.isBackup = false
+                  this.getConfigFile()
+                  this.isDisabled = false
+                  this.$awn.success("Asset restored")
+               }, 250);
+            })
          },
 
          getAssetSize() {
@@ -745,6 +794,27 @@
         border-radius: 3px
         letter-spacing: 1.5px
         padding: 15px
+        position: relative
+
+        &:before,
+        &:after
+            content: ''
+            pointer-events: none
+
+        &.isDisabled
+            &:before
+                pointer-events: auto
+                +M_AbsoluteFullCover
+                z-index: 4000
+                mix-blend-mode: hue
+                background-color: black
+
+            &:after
+                pointer-events: auto
+                +M_AbsoluteFullCover
+                z-index: 40001
+                mix-blend-mode: hue
+                background-color: black
 
         &.hasSettings
             .titleInfo
@@ -754,6 +824,39 @@
         &.isBackup
             filter: grayscale(85%)
             background-color: rgba(0, 0, 0, 0.8)
+
+        .masterOverlay
+            +M_AbsoluteFullCover
+            z-index: 5000
+            display: flex
+            justify-content: center
+            align-items: center
+
+            .overlayContentWrapper
+                background-image: url('~@/assets/images/backgrounds/topBarBackground.jpg')
+                background-size: cover
+                padding: 50px
+                border-radius: 5px
+                display: flex
+                flex-direction: column
+                align-items: center
+                border: 2px solid rgba(0, 0, 0, 0.5)
+
+                .overlayMessage
+                    font-family: "Elementary Gothic", sans-serif
+                    font-size: 18px
+                    font-weight: 600
+                    color: #fff
+                    letter-spacing: 3px
+                    filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.7))
+
+                .spinnerWrapper
+                    margin-bottom: 20px
+                    > div
+                        filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
+                        color: #dcdcdc
+                        width: 75px
+                        height: 75px
 
         .icon
             cursor: pointer

@@ -39,28 +39,31 @@ const mutations = {
 }
 
 const actions = {
-   refreshAssetListCombined({commit, state, dispatch}){
+   refreshAssetListCombined({commit, state, dispatch}) {
 
-      dispatch('refreshAssetList')
-      let assetList = state.assetList
-      let value = assetList.slice()
+      dispatch('refreshAssetList').then(() => {
+         let assetList = state.assetList
+         let value = assetList.slice()
 
-      dispatch('refreshAssetListBackup')
-      let assetListBackup = state.assetListBackup
-      let valueBackup = assetListBackup.slice()
+         dispatch('refreshAssetListBackup').then(() => {
+            let assetListBackup = state.assetListBackup
+            let valueBackup = assetListBackup.slice()
 
-      let i;
-      for (i = 0; i < valueBackup.length; i++) {
+            let i;
+            for (i = 0; i < valueBackup.length; i++) {
 
-         if (!value.includes(valueBackup[i])) {
-            valueBackup[i] = valueBackup[i]+'mythkeeperBackup'
-            value.push(valueBackup[i])
-         }
-      }
+               if (!value.includes(valueBackup[i])) {
+                  valueBackup[i] = valueBackup[i] + 'mythkeeperBackup'
+                  value.push(valueBackup[i])
+               }
+            }
 
-      value.sort()
+            value.sort()
 
-      commit('UPDATE_ASSET_LIST_COMBINED', value)
+            commit('UPDATE_ASSET_LIST_COMBINED', value)
+         })
+      })
+
    },
    refreshAssetListBackup({commit}) {
 
@@ -90,6 +93,7 @@ const actions = {
       })
 
 
+
       commit('UPDATE_ASSET_LIST_BACKUP', value)
    },
    refreshAssetList({commit}) {
@@ -99,10 +103,10 @@ const actions = {
 
       const value = fs.readdirSync(userDataFolder + '/Wonderdraft/assets', 'utf8', function (err, data) {
          if (err) {
-            console.log(err)
+            //console.log(err)
 
          } else {
-            console.log(data)
+            //console.log(data)
 
             return data
 
@@ -114,8 +118,7 @@ const actions = {
    },
 
 
-
-   restoreBackupAsset({commit, state}, assetDir){
+   restoreBackupAsset({commit, state}, assetDir) {
 
       const assetPath = userDataFolder + '/Wonderdraft/assets/' + assetDir
       const assetBackupPath = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + assetDir
@@ -127,7 +130,7 @@ const actions = {
          console.error(err)
       }
    },
-   deleteAssetBackup({commit, state, dispatch}, assetDir){
+   deleteAssetBackup({commit, state, dispatch}, assetDir) {
 
       const assetPath = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + assetDir
       const assetBackupPath = userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets/' + assetDir
@@ -160,11 +163,9 @@ const actions = {
       // Delete the folder
       fs.removeSync(assetPath)
 
-      dispatch('refreshAssetListCombined')
-
    },
 
-   deleteAsset({commit, state, dispatch}, assetDir){
+   deleteAsset({commit, state, dispatch}, assetDir) {
 
       const assetPath = userDataFolder + '/Wonderdraft/assets/' + assetDir
       const assetBackupPath = userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets/' + assetDir
@@ -188,7 +189,6 @@ const actions = {
       }
 
 
-
       // Copy the new backup
       try {
          fs.copySync(assetPath, assetBackupPath)
@@ -200,10 +200,8 @@ const actions = {
       fs.removeSync(assetPath)
 
 
-
-
    },
-   backupAsset({commit, state}, assetDir){
+   backupAsset({commit, state}, assetDir) {
 
       const assetPath = userDataFolder + '/Wonderdraft/assets/' + assetDir
       const assetBackupPath = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + assetDir

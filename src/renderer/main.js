@@ -4,6 +4,10 @@ import VTooltip from 'v-tooltip'
 import axios from 'axios'
 import VuejsDialog from 'vuejs-dialog'
 import 'vuejs-dialog/dist/vuejs-dialog.min.css'
+import Spinner from 'vue-spinkit'
+require("vue-awesome-notifications/dist/styles/style.css")
+import VueAWN from "vue-awesome-notifications"
+
 
 import App from './App'
 import router from './router'
@@ -19,7 +23,11 @@ Vue.use(VuejsDialog, {
    okText: 'OK',
    cancelText: 'Cancel action',
 })
+Vue.use(VueAWN, {
+   icons: {enabled: false}
+})
 
+Vue.component('Spinner', Spinner)
 
 /* eslint-disable no-new */
 new Vue({

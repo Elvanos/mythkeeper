@@ -36,12 +36,31 @@
       computed: {},
       methods: {
          backupAllAssets: function () {
-            this.$store.dispatch('backupAllAssets')
+            this.$store.dispatch('setAppStatusDisabled')
+            setTimeout(() => {
+
+               this.$store.dispatch('backupAllAssets').then(
+                   () => {
+                      this.$store.dispatch('setAppStatusEnabled')
+                   }).then(
+                   () => {
+                      this.$awn.success("All assets successfully backed up")
+                   })
+            }, 50)
+
 
          },
          refreshAssets: function (event) {
-            this.$store.dispatch('refreshAssetListCombined')
-
+            this.$store.dispatch('setAppStatusDisabled')
+                .then(() => {
+                   this.$store.dispatch('refreshAssetListCombined')
+                       .then(() => {
+                          this.$store.dispatch('setAppStatusEnabled')
+                              .then(() => {
+                                 this.$awn.success("Asset list reloaded")
+                              })
+                       })
+                })
          }
 
       }

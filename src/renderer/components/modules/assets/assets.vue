@@ -21,8 +21,7 @@
       name: 'assets',
       components: {assetMiniature},
       mounted: function () {
-           this.$store.dispatch('refreshAssetListCombined')
-
+          this.refreshList()
       },
       data: function(){
          return{
@@ -30,11 +29,14 @@
       },
       computed: {
          folderList(){
-
              return this.$store.getters.getAssetListCombined
          }
       },
-      methods: {}
+      methods: {
+         refreshList(){
+            this.$store.dispatch('refreshAssetListCombined')
+         }
+      }
 
    }
 </script>
