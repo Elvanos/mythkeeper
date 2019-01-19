@@ -35,7 +35,7 @@
       methods: {
          refreshList(){
             this.$store.dispatch('refreshAssetListCombined')
-         }
+         },
       }
 
    }

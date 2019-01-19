@@ -348,14 +348,13 @@
             return this.assetTags.join(', ')
          }
       },
-
       mounted: function () {
          //this.getConfigFile()
          this.checkBasicPath()
-         this.watchConfigFile()
          this.getAssetSize()
-
+         this.watchConfigFile()
       },
+
       methods: {
          checkBasicPath() {
 
@@ -510,7 +509,7 @@
          getAssetSize() {
             const userDataFolder = this.$store.getters.getUserDataFolder
 
-
+            console.log(userDataFolder + this.basicPath + this.assetFolder)
             getSize(userDataFolder + this.basicPath + this.assetFolder, (err, size) => {
                if (err) {
 
@@ -520,6 +519,7 @@
             })
 
          },
+
          watchConfigFile() {
             const userDataFolder = this.$store.getters.getUserDataFolder
             const configPath = userDataFolder + this.basicPath + this.assetFolder + '/mythKeeperSettings.json';
@@ -529,24 +529,23 @@
             });
 
             configFileWatcher.on('add', path => {
+                   this.hasSettings = true
                    this.getConfigFile()
-                   this.getAssetSize()
                 }
             )
 
             configFileWatcher.on('change', path => {
                    this.getConfigFile()
-                   this.getAssetSize()
                 }
             )
 
             configFileWatcher.on('unlink', path => {
                    this.hasSettings = false
-                   this.getAssetSize()
                 }
             );
 
-         },
+         }
+         ,
          getConfigFile() {
             const userDataFolder = this.$store.getters.getUserDataFolder
 
@@ -557,7 +556,8 @@
                this.configJSON = JSON.parse(fs.readFileSync(configPath, 'utf8'))
                this.reloadAssetData()
             }
-         },
+         }
+         ,
          reloadAssetData() {
             const userDataFolder = this.$store.getters.getUserDataFolder
 
