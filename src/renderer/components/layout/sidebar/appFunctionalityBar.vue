@@ -1,24 +1,29 @@
 <template>
-    <div class="appCommandLine" :class="{ '-collapsed': !isOpened}">
+    <div class="appFunctionalityBar">
 
-        <div class="settings -gear" v-tooltip.top-start="`Settings`"></div>
+        <div class="settings -gear" v-tooltip.top-start="`Settings`" @click=toggleDevTools></div>
 
     </div>
 </template>
 
 <script>
+   const remote = require('electron').remote;
+
+
    export default {
-      name: "appCommandLine",
+      name: "appFunctionalityBar",
       computed: {
-         isOpened(){
-            return this.$store.getters.getAppBarStatus
-         }
       },
+      methods:{
+         toggleDevTools(){
+            remote.getCurrentWindow().toggleDevTools()
+         }
+      }
    }
 </script>
 
 <style lang="sass" scoped>
-    .appCommandLine
+    .appFunctionalityBar
         // Display
         display: flex
         position: absolute
@@ -28,19 +33,11 @@
         height: 30px
         bottom: 0
         left: 0
-        width: calc(#{$dimension-sidebarWidth} + 60px)
+        right: 0
         align-items: center
 
         // Background
         background-color: #444342
-
-        // Other
-        transition: width .2s $transition-DefaultType
-
-        &.-collapsed
-            width: 100px + 60px
-            transition: width .6s $transition-DefaultType
-
 
     .settings
         // Sizing & positioning

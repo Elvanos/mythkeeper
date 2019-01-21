@@ -3,12 +3,13 @@
     <div>
         <slot v-if="!this.$props.confirmMessage">
             <div
-                    :class="['commandBarButton', { 'disabled': disabled}]"
+                    class="topCommandLineButton"
+                    :class="[{ 'disabled': disabled}]"
                     :title="title"
                     v-on:click="nonConfirmAction">
 
-                <div class="commandIcon sprite"
-                     :class="[commandIcon]">
+                <div class="icon sprite"
+                     :class="[icon]">
                 </div>
 
             </div>
@@ -16,12 +17,13 @@
 
         <slot v-if="this.$props.confirmMessage">
             <div
-                    :class="['commandBarButton', { 'disabled': disabled}]"
+                    class="topCommandLineButton"
+                    :class="[{ 'disabled': disabled}]"
                     :title="title"
                     v-on:click="confirmAction">
 
-                <div class="commandIcon sprite"
-                     :class="[commandIcon]">
+                <div class="icon sprite"
+                     :class="[icon]">
                 </div>
 
             </div>
@@ -34,7 +36,7 @@
 
 <script>
    export default {
-      name: "commandBarButton",
+      name: "topCommandLineButton",
       computed: {},
       data: function () {
          return {}
@@ -70,7 +72,7 @@
             type: Boolean,
             default: false,
          },
-         commandIcon: {
+         icon: {
             type: String,
             default: 'alert-error',
          },
@@ -81,7 +83,7 @@
 </script>
 
 <style lang="sass">
-    .commandBarButton
+    .topCommandLineButton
 
         // Display
         overflow: hidden
@@ -122,7 +124,7 @@
             cursor: no-drop
             filter: grayscale(1) !important
 
-        .commandIcon
+        .icon
             // Sizing & positioning
             filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
 

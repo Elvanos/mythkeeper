@@ -1,15 +1,26 @@
 <template>
     <div
-            :class="['actionButton', { 'disabled': disabled}, {'-active': activeButton}]" v-on:click="clickAction"
+            class="sidebarButton"
+            :class="[
+                { 'disabled': disabled},
+                {'-active': activeButton}
+            ]"
+            v-on:click="clickAction"
             v-tooltip.right="title">
-        <div :class="['commandIcon',{ '-collapsed': !isOpened}, action]"></div>
+
+        <div class="icon" :class="[
+            { '-collapsed': !isOpened},
+            action
+         ]"></div>
+
         {{title}}
+
     </div>
 </template>
 
 <script>
    export default {
-      name: "actionButton",
+      name: "sidebarButton",
       computed: {
          isOpened() {
             return this.$store.getters.getAppBarStatus
@@ -37,7 +48,7 @@
             if (!event.target.classList.contains('disabled')) {
 
                this.$store.dispatch('setCurrentModule', this.$props.action)
-
+               this.$store.dispatch('closeSidebar')
             }
          },
 
@@ -46,7 +57,7 @@
 </script>
 
 <style lang="sass">
-    .actionButton
+    .sidebarButton
 
         // Display
         overflow: hidden
@@ -99,7 +110,7 @@
             cursor: no-drop
             filter: grayscale(1) !important
 
-        .commandIcon
+        .icon
             // Sizing & positioning
             z-index: 1
             +M_VerticalCenterAbsolute

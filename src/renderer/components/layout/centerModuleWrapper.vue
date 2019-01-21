@@ -1,5 +1,5 @@
 <template>
-    <div class="moduleWrapper">
+    <div class="centerModuleWrapper" id="centerModuleWrapper">
 
         <component :is="activeModule">
             {{activeModule}}
@@ -17,9 +17,8 @@
    import caClient from '../modules/caClient/caClient'
 
 
-
    export default {
-      name: "moduleWrapper",
+      name: "centerModuleWrapper",
       components: {
          assets,
          themes,
@@ -28,7 +27,6 @@
       },
       computed: {
          activeModule() {
-            console.log(this.$store.getters.getCurrentModule)
             return this.$store.getters.getCurrentModule
          }
       }
@@ -37,7 +35,7 @@
 </script>
 
 <style lang="sass" scoped>
-    .moduleWrapper
+    .centerModuleWrapper
         overflow: auto
         margin-top: 63px
         +M_scrollbars($size: 10px, $foreground-color: #444342)

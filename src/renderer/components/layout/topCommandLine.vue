@@ -1,7 +1,10 @@
 <template>
 
 
-    <component :is="activeModule" class="moduleCommandBar" :class="{ '-collapsed': !isOpened}">
+    <component v-if="hasModule"
+               class="topCommandLine"
+               :is="activeModule"
+               :class="{ '-collapsed': !isOpened}">
         {{activeModule}}
     </component>
 
@@ -14,7 +17,7 @@
    import caClientCL from '../modules/caClient/caClientCL'
 
    export default {
-      name: "moduleCommandBar",
+      name: "topCommandLine",
       components: {
          assetsCL,
          themesCL,
@@ -22,8 +25,11 @@
          caClientCL
       },
       computed: {
+         hasModule() {
+            return this.$store.getters.getCurrentModule
+         },
          activeModule() {
-            return this.$store.getters.getCurrentModule + 'CL'
+            return this.hasModule + 'CL'
          },
          isOpened() {
             return this.$store.getters.getAppBarStatus
@@ -33,7 +39,7 @@
 </script>
 
 <style lang="sass" scoped>
-    .moduleCommandBar
+    .topCommandLine
         position: absolute
         background-image: url('~@/assets/images/backgrounds/topBarBackground.jpg')
         background-size:

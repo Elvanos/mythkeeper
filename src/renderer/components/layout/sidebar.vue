@@ -1,33 +1,39 @@
 <template>
-    <div class="commandSidebar" :class="{ '-collapsed': !isOpened}">
-        <actionButton title="Assets" action="assets"></actionButton>
-        <actionButton title="Themes" action="themes" :disabled="true"></actionButton>
-        <actionButton title="Profiles" action="profiles" :disabled=true></actionButton>
-        <actionButton title="CA Client" action="caClient" :disabled=true></actionButton>
+    <div class="sidebar" :class="{ '-collapsed': isOpened}">
+        <sidebarButton title="Assets" action="assets"></sidebarButton>
+        <sidebarButton title="Themes" action="themes" :disabled="true"></sidebarButton>
+        <sidebarButton title="Profiles" action="profiles" :disabled=true></sidebarButton>
+        <sidebarButton title="CA Client" action="caClient" :disabled=true></sidebarButton>
 
-
+        <appFunctionalityBar></appFunctionalityBar>
 
     </div>
+
 
 </template>
 
 <script>
-   import actionButton from './subparts/actionButton'
+   import sidebarButton from './sidebar/sidebarButton'
+   import appFunctionalityBar from './sidebar/appFunctionalityBar'
+
 
    export default {
-      name: "commandSidebar",
+      name: "sidebar",
       computed: {
          isOpened(){
-            return this.$store.getters.getAppBarStatus
+            return !this.$store.getters.getAppBarStatus
          }
       },
-      components: {actionButton},
+      components: {
+         sidebarButton,
+         appFunctionalityBar
+      },
 
    }
 </script>
 
 <style lang="sass" scoped>
-    .commandSidebar
+    .sidebar
 
         // Display
         display: flex
@@ -56,7 +62,7 @@
             width: 100px
             transition: width .4s ease-in
 
-            .actionButton
+            .sidebarButton
                 width: calc(100% - 60px)
                 color: transparent
                 text-indent: -200px

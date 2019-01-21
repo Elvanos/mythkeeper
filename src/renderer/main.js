@@ -6,12 +6,17 @@ import VuejsDialog from 'vuejs-dialog'
 import 'vuejs-dialog/dist/vuejs-dialog.min.css'
 import Spinner from 'vue-spinkit'
 require("vue-awesome-notifications/dist/styles/style.css")
+require('vue-image-lightbox/dist/vue-image-lightbox.min.css')
 import VueAWN from "vue-awesome-notifications"
 
 
 import App from './App'
 import router from './router'
 import store from './store'
+let VueScrollTo = require('vue-scrollto');
+
+
+
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
@@ -26,6 +31,7 @@ Vue.use(VuejsDialog, {
 Vue.use(VueAWN, {
    icons: {enabled: false}
 })
+Vue.use(VueScrollTo)
 
 Vue.component('Spinner', Spinner)
 

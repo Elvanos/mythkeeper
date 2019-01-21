@@ -4,171 +4,71 @@ import {remote} from 'electron'
 
 const userDataFolder = remote.app.getPath('appData')
 
+const assetsFolder = userDataFolder + '/Wonderdraft/assets'
+const assetsFolderBackup = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets'
+const assetsFolderDeleted = userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets'
+
+
 const state = {
-   assetList: false,
-   assetListBackup: false,
-   assetListCombined: false,
-   userDataFolder: userDataFolder
+   userDataFolder: userDataFolder,
+   assetsFolder: assetsFolder,
+   assetsFolderBackup: assetsFolderBackup,
+   assetsFolderDeleted: assetsFolderDeleted,
+   listAssetsFolders: [],
+   listAssetsFoldersBackup: []
+
 }
 
 const getters = {
-   getAssetList: (state) => {
-      return state.assetList
-   },
-   getAssetListBackup: (state) => {
-      return state.assetListBackup
-   },
-   getAssetListCombined: (state) => {
-      return state.assetListCombined
-   },
    getUserDataFolder: (state) => {
       return state.userDataFolder
+   },
+   getAssetsFolder: (state) => {
+      return state.assetsFolder
+   },
+   getAssetsFolderBackup: (state) => {
+      return state.assetsFolderBackup
+   },
+   getAssetsFolderDeleted: (state) => {
+      return state.assetsFolderDeleted
+   },
+
+   getListAssetsFolders: (state) => {
+      return state.listAssetsFolders
+   },
+   getListAssetsFolderBackup: (state) => {
+      return state.listAssetsFoldersBackup
    }
 }
 
 const mutations = {
    UPDATE_ASSET_LIST(state, value) {
-      state.assetList = value
+      state.listAssetsFolders = value
    },
    UPDATE_ASSET_LIST_BACKUP(state, value) {
-      state.assetListBackup = value
+      state.listAssetsFoldersBackup = value
    },
-   UPDATE_ASSET_LIST_COMBINED(state, value) {
-      state.assetListCombined = value
-   }
+
 }
 
 const actions = {
-   refreshAssetListCombined({commit, state, dispatch}) {
-
-      dispatch('refreshAssetList').then(() => {
-         let assetList = state.assetList
-         let value = assetList.slice()
-
-         dispatch('refreshAssetListBackup').then(() => {
-            let assetListBackup = state.assetListBackup
-            let valueBackup = assetListBackup.slice()
-
-            let i;
-            for (i = 0; i < valueBackup.length; i++) {
-
-               if (!value.includes(valueBackup[i])) {
-                  valueBackup[i] = valueBackup[i] + 'mythkeeperBackup'
-                  value.push(valueBackup[i])
-               }
-            }
-
-            value.sort()
-
-            commit('UPDATE_ASSET_LIST_COMBINED', value)
-         })
-      })
-
-   },
-   refreshAssetListBackup({commit}) {
-
-      // Fix paths
-      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper')) {
-         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper')
-      }
-
-      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup')) {
-         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup')
-      }
-
-      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets')) {
-         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets')
-      }
-
-      const value = fs.readdirSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets', 'utf8', function (err, data) {
-         if (err) {
-            console.log(err)
-
-         } else {
-            console.log(data)
-
-            return data
-
-         }
-      })
 
 
+   updateAssetList({commit},list) {
 
-      commit('UPDATE_ASSET_LIST_BACKUP', value)
-   },
-   refreshAssetList({commit}) {
-
-      // Exports for debug for Zalkenai
-      //remote.getCurrentWindow().toggleDevTools();
-
-      const value = fs.readdirSync(userDataFolder + '/Wonderdraft/assets', 'utf8', function (err, data) {
-         if (err) {
-            //console.log(err)
-
-         } else {
-            //console.log(data)
-
-            return data
-
-         }
-      })
-
-
-      commit('UPDATE_ASSET_LIST', value)
+      commit('UPDATE_ASSET_LIST', list)
    },
 
+   updateAssetListBackup({commit},list) {
 
-   restoreBackupAsset({commit, state}, assetDir) {
-
-      const assetPath = userDataFolder + '/Wonderdraft/assets/' + assetDir
-      const assetBackupPath = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + assetDir
-
-      // Copy the new backup
-      try {
-         fs.copySync(assetBackupPath, assetPath)
-      } catch (err) {
-         console.error(err)
-      }
-   },
-   deleteAssetBackup({commit, state, dispatch}, assetDir) {
-
-      const assetPath = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + assetDir
-      const assetBackupPath = userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets/' + assetDir
-
-      // Fix paths
-      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper')) {
-         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper')
-      }
-
-      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/deleted')) {
-         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper/deleted')
-      }
-
-      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets')) {
-         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets')
-      }
-
-      // Delete already existing backup if it exists
-      if (fs.existsSync(assetBackupPath)) {
-         fs.removeSync(assetBackupPath)
-      }
-
-      // Copy the new backup
-      try {
-         fs.copySync(assetPath, assetBackupPath)
-      } catch (err) {
-         console.error(err)
-      }
-
-      // Delete the folder
-      fs.removeSync(assetPath)
-
+     commit('UPDATE_ASSET_LIST_BACKUP', list)
    },
 
+   // Delete asset
    deleteAsset({commit, state, dispatch}, assetDir) {
 
-      const assetPath = userDataFolder + '/Wonderdraft/assets/' + assetDir
-      const assetBackupPath = userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets/' + assetDir
+      const assetPath = assetsFolder +'/'+ assetDir
+      const assetDeletedPath = userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets/' + assetDir
 
       // Fix paths
       if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper')) {
@@ -184,14 +84,14 @@ const actions = {
       }
 
       // Delete already existing backup if it exists
-      if (fs.existsSync(assetBackupPath)) {
-         fs.removeSync(assetBackupPath)
+      if (fs.existsSync(assetDeletedPath)) {
+         fs.removeSync(assetDeletedPath)
       }
 
 
       // Copy the new backup
       try {
-         fs.copySync(assetPath, assetBackupPath)
+         fs.copySync(assetPath, assetDeletedPath)
       } catch (err) {
          console.error(err)
       }
@@ -201,10 +101,11 @@ const actions = {
 
 
    },
-   backupAsset({commit, state}, assetDir) {
 
-      const assetPath = userDataFolder + '/Wonderdraft/assets/' + assetDir
-      const assetBackupPath = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + assetDir
+   // Backup functions Functions
+   backupAsset({commit, state}, assetDir) {
+      const assetPath = assetsFolder +'/'+ assetDir
+      const assetBackupPath = assetsFolderBackup +'/'+ assetDir
 
       // Fix paths
       if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper')) {
@@ -223,7 +124,6 @@ const actions = {
       if (fs.existsSync(assetBackupPath)) {
          fs.removeSync(assetBackupPath)
       }
-
 
       // Copy the new backup
       try {
@@ -238,11 +138,57 @@ const actions = {
 
       // Backup all assets
       let i;
-      for (i = 0; i < state.assetList.length; i++) {
-         const assetDir = state.assetList[i]
+      for (i = 0; i < state.listAssetsFolders.length; i++) {
+         const assetDir = state.listAssetsFolders[i]
 
          dispatch('backupAsset', assetDir);
       }
+
+   },
+   restoreBackupAsset({commit, state}, assetDir) {
+
+      const assetPath = assetsFolder +'/'+ assetDir
+      const assetBackupPath = assetsFolderBackup +'/'+ assetDir
+
+      // Copy the new backup
+      try {
+         fs.copySync(assetBackupPath, assetPath)
+      } catch (err) {
+         console.error(err)
+      }
+   },
+   deleteAssetBackup({commit, state, dispatch}, assetDir) {
+
+      const assetBackupPath = assetsFolderBackup +'/'+ assetDir
+      const assetPathDeleted = assetsFolderDeleted +'/'+ assetDir
+
+      // Fix paths
+      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper')) {
+         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper')
+      }
+
+      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/deleted')) {
+         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper/deleted')
+      }
+
+      if (!fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets')) {
+         fs.mkdirSync(userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets')
+      }
+
+      // Delete already existing deleted backup if it exists
+      if (fs.existsSync(assetPathDeleted)) {
+         fs.removeSync(assetPathDeleted)
+      }
+
+      // Copy the new deleted backup
+      try {
+         fs.copySync(assetBackupPath, assetPathDeleted)
+      } catch (err) {
+         console.error(err)
+      }
+
+      // Delete the folder
+      fs.removeSync(assetBackupPath)
 
    },
 

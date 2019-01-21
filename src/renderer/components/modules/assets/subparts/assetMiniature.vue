@@ -1,5 +1,9 @@
 <template>
-    <div class="assetMiniature" :class="[{hasSettings: hasSettings}, {isBackup: isBackup}, {isDisabled: isDisabled}]">
+    <div class="assetMiniature" :class="[
+        {'hasSettings': this.$props.config},
+        {'isBackup': this.$props.status === 'backup'},
+        {'isDisabled': isDisabled}
+    ]">
 
         <div class="masterOverlay" v-if="isDisabled">
             <div class="overlayContentWrapper">
@@ -12,8 +16,9 @@
         </div>
         <div class="titleInfo">
 
+
             <div class="title" v-tooltip.top-start="assetName">
-                <slot v-if="isBackup">BACKUP:</slot>
+                <slot v-if="this.$props.status === 'backup'">BACKUP:</slot>
                 {{assetName}}
             </div>
 
@@ -240,26 +245,26 @@
                 ></LightBox>
             </slot>
 
-            <slot v-if="!isBackup">
+            <slot v-if="this.$props.status !== 'backup'">
                 <div class="button" @click="backupCheckExist()" v-tooltip.bottom-start="`Backup this asset`">
                     <div class="sprite translate-original-grey"></div>
                 </div>
             </slot>
 
-            <slot v-if="isBackup">
+            <slot v-if="this.$props.status === 'backup'">
                 <div class="button" @click="restoreBackupAsset()"
                      v-tooltip.bottom-start="`Restore backup of this asset`">
                     <div class="sprite translate-new-grey"></div>
                 </div>
             </slot>
 
-            <slot v-if="!isBackup">
+            <slot v-if="this.$props.status !== 'backup'">
                 <div class="button" @click="deleteCheckExist()" v-tooltip.bottom-start="`Delete this asset`">
                     <div class="sprite general-remove"></div>
                 </div>
             </slot>
 
-            <slot v-if="isBackup">
+            <slot v-if="this.$props.status === 'backup'">
                 <div class="button" @click="deleteAssetBackupConfirm()"
                      v-tooltip.bottom-start="`Delete backup of this asset`">
                     <div class="sprite general-remove"></div>
@@ -275,35 +280,47 @@
 
 <script>
 
+   // NPM Packages
    const fs = require('fs')
    const getSize = require('get-folder-size')
-   const chokidar = require('chokidar')
-   require('vue-image-lightbox/dist/vue-image-lightbox.min.css')
-   import placeholderSymbol from '../../../../assets/images/icons/placeholderSymbol.png'
+   //const chokidar = require('chokidar')
+
+   // VUE vendor components
    import LightBox from 'vue-image-lightbox'
+
+   // Others
+   import placeholderSymbol from '../../../../assets/images/icons/placeholderSymbol.png'
 
    export default {
       name: "assetMiniature",
       components: {
          LightBox
       },
-      props: {
-         folder: String
-
-      },
+      props:
+          [
+             'folder',
+             'status',
+             'postLoadAdded',
+             'config'
+          ]
+      ,
       data: function () {
          return {
 
-            isBackup: false,
+            // Globals
+            userDataFolderPath: this.$store.getters.getUserDataFolder,
+            assetsFolderPath: this.$store.getters.getAssetsFolder,
+            assetsFolderPathMKBackup: this.$store.getters.getAssetsFolderBackup,
+            assetSizeInterval: false,
+
+            // Folder technical info
+            assetSize: 'N/A',
+
+            // Asset processing status
             isDisabled: false,
-            assetFolder: '',
-            basicPath: '/Wonderdraft/assets/',
 
-            configJSON: {},
-            hasSettings: false,
-            configFileWatched: false,
-
-            assetName: this.assetFolder,
+            // Asset info
+            assetName: this.$props.folder,
             assetVersion: '',
 
             hasPreview: false,
@@ -338,37 +355,40 @@
 
             assetTags: ['N/A'],
 
-            assetSize: 'N/A'
-
 
          }
-      },
+      }
+      ,
       computed: {
          processedAssetTags: function () {
             return this.assetTags.join(', ')
          }
       },
       mounted: function () {
-         //this.getConfigFile()
-         this.checkBasicPath()
+
          this.getAssetSize()
-         this.watchConfigFile()
+         this.reloadAssetData()
+
+         this.assetSizeInterval = setInterval(()=>{
+            this.getAssetSize()
+         }, 10000)
+
+
+
+
+      },
+
+      beforeDestroy:function () {
+         clearInterval(this.assetSizeInterval)
+      },
+
+      beforeUpdate: function () {
+         this.getAssetSize()
+         this.reloadAssetData()
       },
 
       methods: {
-         checkBasicPath() {
-
-            this.assetFolder = this.$props.folder
-            this.assetName = this.$props.folder
-
-            if (this.$props.folder.includes('mythkeeperBackup')) {
-               this.isBackup = true
-               this.assetFolder = this.$props.folder.replace("mythkeeperBackup", "")
-               this.assetName = this.$props.folder.replace("mythkeeperBackup", "")
-               this.basicPath = '/Wonderdraft/_mythKeeper/backup/assets/'
-            }
-
-         },
+         // Utility methods
          openPreview() {
             this.$refs.lightboxPreview.showImage(0)
          },
@@ -378,9 +398,273 @@
          openURL(link) {
             this.$electron.shell.openExternal(link)
          },
+
+         // Folder detail methods
+         getAssetSize() {
+
+            let folderPath
+
+            if (this.$props.status === 'normal') folderPath = this.assetsFolderPath + '/' + this.$props.folder
+            if (this.$props.status === 'backup') folderPath = this.assetsFolderPathMKBackup + '/' + this.$props.folder
+
+
+            //console.log('getting size')
+
+            getSize(folderPath, (err, size) => {
+               if (!err) {
+                  this.assetSize = (size / 1024 / 1024).toFixed(1) + ' MB'
+               }
+            })
+
+         },
+         reloadAssetData() {
+
+            let folderPath
+            let configData = this.$props.config
+
+            if (this.$props.status === 'normal') folderPath = this.assetsFolderPath + '/' + this.$props.folder
+            if (this.$props.status === 'backup') folderPath = this.assetsFolderPathMKBackup + '/' + this.$props.folder
+
+
+            // Reset all data to defaults first
+            this.assetName = this.$props.folder
+            this.assetVersion = ''
+
+            this.hasPreview = false
+            this.assetPreview = placeholderSymbol
+            this.assetPreviewTitle = 'No preview'
+            this.assetPreviewLightBoxImageSettings = []
+
+            this.assetAuthorName = 'N/A'
+            this.assetAuthorMail = false
+            this.assetAuthorUrl = false
+            this.assetAuthorDonationURL = false
+
+            this.assetDistributorName = 'N/A'
+            this.assetDistributorMail = false
+            this.assetDistributorUrl = false
+            this.assetDistributorDonationURL = false
+
+            this.assetTagline = 'N/A'
+
+            this.hasGallery = false
+            this.assetGalleryLightBoxImageSettings = []
+
+            this.assetLicense = 'N/A'
+            this.assetLicenseURL = false
+            this.assetLicenseFile = false
+
+            this.hasCommentary = false
+            this.assetCommentaryFile = false
+
+            this.assetCommercialUse = 'N/A'
+            this.assetCommercialURL = false
+
+            this.assetTags = ['N/A']
+
+            // Read file if we have config data
+            if (configData) {
+               const metaFilesPath = folderPath + '/metafiles/'
+
+               if (configData.basicInformation !== undefined) {
+
+                  // Get basic info
+                  if (configData.basicInformation.name !== undefined) {
+                     this.assetName = configData.basicInformation.name
+                  }
+                  if (configData.basicInformation.version !== undefined) {
+                     this.assetVersion = configData.basicInformation.version
+                  }
+
+                  // Get preview image & set preview title
+                  if (fs.existsSync(metaFilesPath + 'preview.jpg')) {
+                     this.hasPreview = true
+                     this.assetPreview = metaFilesPath + 'preview.jpg'
+                     this.assetPreviewTitle = "Click for preview of: " + this.assetName
+                     this.assetPreviewLightBoxImageSettings = [
+                        {
+                           thumb: metaFilesPath + 'preview.jpg',
+                           src: metaFilesPath + 'preview.jpg',
+                        }
+                     ]
+                  }
+                  if (fs.existsSync(metaFilesPath + 'preview.png')) {
+                     this.hasPreview = true
+                     this.assetPreview = metaFilesPath + 'preview.png'
+                     this.assetPreviewTitle = "Click for preview of: " + this.assetName
+                     this.assetPreviewLightBoxImageSettings = [
+                        {
+                           src: metaFilesPath + 'preview.png',
+                        }
+                     ]
+                  }
+
+                  // Get author info
+                  if (configData.basicInformation.author !== undefined && configData.basicInformation.author.exists) {
+
+                     if (configData.basicInformation.author.name) {
+                        this.assetAuthorName = configData.basicInformation.author.name
+                     }
+
+                     if (configData.basicInformation.author.mail) {
+                        this.assetAuthorMail = configData.basicInformation.author.mail
+                     }
+
+                     if (configData.basicInformation.author.url) {
+                        this.assetAuthorUrl = configData.basicInformation.author.url
+                     }
+
+                     if (configData.basicInformation.author.donationURL) {
+                        this.assetAuthorDonationURL = configData.basicInformation.author.donationURL
+                     }
+                  }
+
+                  // Get distributor info
+                  if (configData.basicInformation.distributor !== undefined && configData.basicInformation.distributor.exists) {
+
+                     if (configData.basicInformation.distributor.name) {
+                        this.assetDistributorName = configData.basicInformation.distributor.name
+                     }
+
+                     if (configData.basicInformation.distributor.mail) {
+                        this.assetDistributorMail = configData.basicInformation.distributor.mail
+                     }
+
+                     if (configData.basicInformation.distributor.url) {
+                        this.assetDistributorUrl = configData.basicInformation.distributor.url
+                     }
+
+                     if (configData.basicInformation.distributor.donationURL) {
+                        this.assetDistributorDonationURL = configData.basicInformation.distributor.donationURL
+                     }
+                  }
+
+                  // Get tagline
+                  if (configData.basicInformation.tagLine !== undefined) {
+                     this.assetTagline = configData.basicInformation.tagLine
+                  }
+
+                  // Get gallery
+                  if (fs.existsSync(metaFilesPath + 'gallery')) {
+                     this.hasGallery = true
+
+                     const galleryImages = fs.readdirSync(metaFilesPath + 'gallery', 'utf8', function (err, data) {
+                        if (err) {
+                           console.log(err)
+
+                        } else {
+                           //console.log(data)
+
+                           return data
+
+                        }
+                     })
+
+                     this.assetGalleryLightBoxImageSettings = []
+
+                     this.assetGalleryLightBoxImageSettings = galleryImages.map(image => {
+
+                        // Fix file pathing for background images
+                        let filePath = 'file:///' + metaFilesPath + 'gallery/' + image
+                        filePath = filePath.replace(/\\/g, "/")
+
+                        return {
+                           thumb: filePath,
+                           src: metaFilesPath + 'gallery/' + image,
+                        }
+                     })
+
+
+                  }
+
+                  // Get license & commentary
+                  if (configData.basicInformation.license !== undefined && configData.basicInformation.license.hasLicense) {
+
+                     this.assetLicense = configData.basicInformation.license.type
+
+                     // Get external link
+                     if (configData.basicInformation.license.externalLink) {
+
+                        switch (configData.basicInformation.license.type) {
+
+                           case 'CC BY 4.0':
+                              // code block
+                              this.assetLicenseURL = 'https://creativecommons.org/licenses/by/4.0/'
+                              break
+
+                            // Try google if we dont get a match
+                           default:
+                              this.assetLicenseURL = 'https://www.google.com/search?q=license ' + configData.basicInformation.license.type
+                        }
+
+                     }
+
+                     // Get local file
+                     if (configData.basicInformation.license.localFile) {
+
+                        if (fs.existsSync(metaFilesPath + 'license.pdf')) {
+                           this.assetLicenseFile = metaFilesPath + 'license.pdf'
+                        }
+                        else {
+                           // Try google if the file isnt there
+                           this.assetLicenseURL = 'https://www.google.com/search?q=license ' + configData.basicInformation.license.type
+                        }
+
+                     }
+
+                     // Get commentary file
+                     if (configData.basicInformation.license.commentary) {
+
+                        this.hasCommentary = false
+
+                        // Try txt
+                        if (fs.existsSync(metaFilesPath + 'commentary.txt')) {
+                           this.assetCommentaryFile = metaFilesPath + 'commentary.txt'
+                           this.hasCommentary = true
+                        }
+
+                        // Try PDF, preferred
+                        if (fs.existsSync(metaFilesPath + 'commentary.pdf')) {
+                           this.assetCommentaryFile = metaFilesPath + 'commentary.pdf'
+                           this.hasCommentary = true
+                        }
+
+
+                     }
+
+                  }
+
+                  // Get commercial use info
+                  if (configData.basicInformation.commercialUse !== undefined) {
+
+                     if (configData.basicInformation.commercialUse) {
+                        this.assetCommercialUse = 'Allowed'
+                     } else {
+                        this.assetCommercialUse = 'Not-allowed'
+                     }
+
+                     if (configData.basicInformation.commercialURL) {
+                        this.assetCommercialURL = configData.basicInformation.commercialURL
+                     }
+
+                  }
+
+                  // Get tags
+                  if (configData.basicInformation.tags !== undefined) {
+                     this.assetTags = configData.basicInformation.tags
+                  }
+               }
+            }
+
+
+         },
+
+         // Backup asset
          backupCheckExist() {
-            const userDataFolder = this.$store.getters.getUserDataFolder
-            if (fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + this.assetFolder)) {
+
+            let folderBackupPath = this.assetsFolderPathMKBackup + '/' + this.$props.folder
+
+            if (fs.existsSync(folderBackupPath)) {
                this.backupAssetConfirm()
             } else {
                this.backupAsset()
@@ -388,7 +672,7 @@
          },
          backupAssetConfirm() {
             this.$dialog
-                .confirm('Asset is already backed up. Overwrite with this iteration?')
+                .confirm('Asset is already backed up. Overwrite with this version?')
                 .then(() => {
                    this.backupAsset()
                 })
@@ -397,13 +681,26 @@
          },
          backupAsset() {
             this.isDisabled = true
-            this.$store.dispatch('backupAsset', this.assetFolder).then(() => {
-
-               this.$awn.success("Asset backed up")
-               this.isDisabled = false
-
-            })
+            setTimeout(() => {
+               this.$store.dispatch('backupAsset', this.$props.folder).then(() => {
+                  this.$awn.success("Asset backed up")
+                  this.isDisabled = false
+               })
+            }, 250)
          },
+
+         // Restore backed-up asset
+         restoreBackupAsset() {
+            this.isDisabled = true
+            setTimeout(() => {
+               this.$store.dispatch('restoreBackupAsset', this.$props.folder).then(() => {
+                  this.$awn.success("Asset restored")
+                  this.isDisabled = false
+               })
+            }, 250)
+         },
+
+         // Delete asset backup
          deleteAssetBackupConfirm() {
             this.$dialog
                 .confirm('Delete backup of the asset? It can be retrieved manually later, but gets removed from the list'
@@ -417,24 +714,21 @@
          },
          deleteAssetBackup() {
             this.isDisabled = true
-            this.$store.dispatch('deleteAssetBackup', this.assetFolder)
-                .then(() => {
+            setTimeout(() => {
+               this.$store.dispatch('deleteAssetBackup', this.$props.folder)
+                   .then(() => {
 
-                   this.$awn.success("Asset backup deleted")
-                   this.isDisabled = false
+                      this.$awn.success("Asset backup deleted")
+                      this.isDisabled = false
 
-                   const userDataFolder = this.$store.getters.getUserDataFolder
-                   setTimeout(() => {
-                      this.$store.dispatch('refreshAssetListCombined')
-
-                   }, 250);
-
-                })
-
+                   })
+            }, 250)
          },
+
+         // Delete asset
          deleteCheckExist() {
-            const userDataFolder = this.$store.getters.getUserDataFolder
-            if (fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + this.assetFolder)) {
+
+            if (fs.existsSync(this.assetsFolderPathMKBackup + '/' + this.$props.folder)) {
                this.deleteAsset()
             } else {
                this.deleteAssetConfirm()
@@ -472,286 +766,17 @@
          },
          deleteAsset() {
             this.isDisabled = true
-            this.$store.dispatch('deleteAsset', this.assetFolder)
-                .then(() => {
-
-                   this.$awn.success("Asset deleted")
-                   this.isDisabled = false
-
-                   const userDataFolder = this.$store.getters.getUserDataFolder
-
-                   if (fs.existsSync(userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets/' + this.assetFolder)) {
-                      this.isBackup = true
-
-                   }
-                   else {
-                      setTimeout(() => {
-                         this.$store.dispatch('refreshAssetListCombined')
-                      }, 250);
-
-                   }
-                })
+            setTimeout(() => {
+               this.$store.dispatch('deleteAsset', this.$props.folder)
+                   .then(() => {
+                      this.$awn.success("Asset deleted")
+                      this.isDisabled = false
+                   })
+            }, 250)
 
          },
 
-         restoreBackupAsset() {
-            this.isDisabled = true
-            this.$store.dispatch('restoreBackupAsset', this.assetFolder).then(() => {
-               setTimeout(() => {
-                  this.isBackup = false
-                  this.getConfigFile()
-                  this.isDisabled = false
-                  this.$awn.success("Asset restored")
-               }, 250);
-            })
-         },
 
-         getAssetSize() {
-            const userDataFolder = this.$store.getters.getUserDataFolder
-
-            console.log(userDataFolder + this.basicPath + this.assetFolder)
-            getSize(userDataFolder + this.basicPath + this.assetFolder, (err, size) => {
-               if (err) {
-
-               }
-
-               this.assetSize = (size / 1024 / 1024).toFixed(1) + ' MB'
-            })
-
-         },
-
-         watchConfigFile() {
-            const userDataFolder = this.$store.getters.getUserDataFolder
-            const configPath = userDataFolder + this.basicPath + this.assetFolder + '/mythKeeperSettings.json';
-
-            let configFileWatcher = chokidar.watch(configPath, {
-               persistent: true
-            });
-
-            configFileWatcher.on('add', path => {
-                   this.hasSettings = true
-                   this.getConfigFile()
-                }
-            )
-
-            configFileWatcher.on('change', path => {
-                   this.getConfigFile()
-                }
-            )
-
-            configFileWatcher.on('unlink', path => {
-                   this.hasSettings = false
-                }
-            );
-
-         }
-         ,
-         getConfigFile() {
-            const userDataFolder = this.$store.getters.getUserDataFolder
-
-            const configPath = userDataFolder + this.basicPath + this.assetFolder + '/mythKeeperSettings.json';
-
-            if (fs.existsSync(configPath)) {
-               this.hasSettings = true
-               this.configJSON = JSON.parse(fs.readFileSync(configPath, 'utf8'))
-               this.reloadAssetData()
-            }
-         }
-         ,
-         reloadAssetData() {
-            const userDataFolder = this.$store.getters.getUserDataFolder
-
-            if (this.configJSON.basicInformation !== undefined) {
-
-               const metaFilesPath = userDataFolder + this.basicPath + this.assetFolder + '/metafiles/';
-
-               // Get basic info
-               if (this.configJSON.basicInformation.name !== undefined) {
-                  this.assetName = this.configJSON.basicInformation.name
-               }
-               if (this.configJSON.basicInformation.version !== undefined) {
-                  this.assetVersion = this.configJSON.basicInformation.version
-               }
-
-               // Get preview image & set preview title
-               if (fs.existsSync(metaFilesPath + 'preview.jpg')) {
-                  this.hasPreview = true
-                  this.assetPreview = metaFilesPath + 'preview.jpg'
-                  this.assetPreviewTitle = "Click for preview of: " + this.assetName
-                  this.assetPreviewLightBoxImageSettings = [
-                     {
-                        thumb: metaFilesPath + 'preview.jpg',
-                        src: metaFilesPath + 'preview.jpg',
-                     }
-                  ]
-               }
-               if (fs.existsSync(metaFilesPath + 'preview.png')) {
-                  this.hasPreview = true
-                  this.assetPreview = metaFilesPath + 'preview.png'
-                  this.assetPreviewTitle = "Click for preview of: " + this.assetName
-                  this.assetPreviewLightBoxImageSettings = [
-                     {
-                        src: metaFilesPath + 'preview.png',
-                     }
-                  ]
-               }
-
-               // Get author info
-               if (this.configJSON.basicInformation.author !== undefined && this.configJSON.basicInformation.author.exists) {
-
-                  if (this.configJSON.basicInformation.author.name) {
-                     this.assetAuthorName = this.configJSON.basicInformation.author.name
-                  }
-
-                  if (this.configJSON.basicInformation.author.mail) {
-                     this.assetAuthorMail = this.configJSON.basicInformation.author.mail
-                  }
-
-                  if (this.configJSON.basicInformation.author.url) {
-                     this.assetAuthorUrl = this.configJSON.basicInformation.author.url
-                  }
-
-                  if (this.configJSON.basicInformation.author.donationURL) {
-                     this.assetAuthorDonationURL = this.configJSON.basicInformation.author.donationURL
-                  }
-               }
-
-               // Get distributor info
-               if (this.configJSON.basicInformation.distributor !== undefined && this.configJSON.basicInformation.distributor.exists) {
-
-                  if (this.configJSON.basicInformation.distributor.name) {
-                     this.assetDistributorName = this.configJSON.basicInformation.distributor.name
-                  }
-
-                  if (this.configJSON.basicInformation.distributor.mail) {
-                     this.assetDistributorMail = this.configJSON.basicInformation.distributor.mail
-                  }
-
-                  if (this.configJSON.basicInformation.distributor.url) {
-                     this.assetDistributorUrl = this.configJSON.basicInformation.distributor.url
-                  }
-
-                  if (this.configJSON.basicInformation.distributor.donationURL) {
-                     this.assetDistributorDonationURL = this.configJSON.basicInformation.distributor.donationURL
-                  }
-               }
-
-               // Get tagline
-               if (this.configJSON.basicInformation.tagLine !== undefined) {
-                  this.assetTagline = this.configJSON.basicInformation.tagLine
-               }
-
-               // Get gallery
-               if (fs.existsSync(userDataFolder + this.basicPath + this.assetFolder + '/metafiles/gallery')) {
-                  this.hasGallery = true
-
-                  const galleryImages = fs.readdirSync(userDataFolder + this.basicPath + this.assetFolder + '/metafiles/gallery', 'utf8', function (err, data) {
-                     if (err) {
-                        console.log(err)
-
-                     } else {
-                        //console.log(data)
-
-                        return data
-
-                     }
-                  })
-
-                  this.assetGalleryLightBoxImageSettings = []
-
-                  this.assetGalleryLightBoxImageSettings = galleryImages.map(image => {
-
-                     // Fix file pathing for background images
-                     let filePath = 'file:///' + userDataFolder + this.basicPath + this.assetFolder + '/metafiles/gallery/' + image
-                     filePath = filePath.replace(/\\/g, "/")
-
-                     return {
-                        thumb: filePath,
-                        src: userDataFolder + this.basicPath + this.assetFolder + '/metafiles/gallery/' + image,
-                     }
-                  })
-
-
-               }
-
-               // Get license & commentary
-               if (this.configJSON.basicInformation.license !== undefined && this.configJSON.basicInformation.license.hasLicense) {
-
-                  this.assetLicense = this.configJSON.basicInformation.license.type
-
-                  // Get external link
-                  if (this.configJSON.basicInformation.license.externalLink) {
-
-                     switch (this.configJSON.basicInformation.license.type) {
-
-                        case 'CC BY 4.0':
-                           // code block
-                           this.assetLicenseURL = 'https://creativecommons.org/licenses/by/4.0/'
-                           break
-
-                         // Try google if we dont get a match
-                        default:
-                           this.assetLicenseURL = 'https://www.google.com/search?q=license ' + this.configJSON.basicInformation.license.type
-                     }
-
-                  }
-
-                  // Get local file
-                  if (this.configJSON.basicInformation.license.localFile) {
-
-                     if (fs.existsSync(metaFilesPath + 'license.pdf')) {
-                        this.assetLicenseFile = metaFilesPath + 'license.pdf'
-                     }
-                     else {
-                        // Try google if the file isnt there
-                        this.assetLicenseURL = 'https://www.google.com/search?q=license ' + this.configJSON.basicInformation.license.type
-                     }
-
-                  }
-
-                  // Get commentary file
-                  if (this.configJSON.basicInformation.license.commentary) {
-
-                     this.hasCommentary = false
-
-                     // Try txt
-                     if (fs.existsSync(metaFilesPath + 'commentary.txt')) {
-                        this.assetCommentaryFile = metaFilesPath + 'commentary.txt'
-                        this.hasCommentary = true
-                     }
-
-                     // Try PDF, preferred
-                     if (fs.existsSync(metaFilesPath + 'commentary.pdf')) {
-                        this.assetCommentaryFile = metaFilesPath + 'commentary.pdf'
-                        this.hasCommentary = true
-                     }
-
-
-                  }
-
-               }
-
-               // Get commercial use info
-               if (this.configJSON.basicInformation.commercialUse !== undefined) {
-
-                  if (this.configJSON.basicInformation.commercialUse) {
-                     this.assetCommercialUse = 'Allowed'
-                  } else {
-                     this.assetCommercialUse = 'Not-allowed'
-                  }
-
-                  if (this.configJSON.basicInformation.commercialURL) {
-                     this.assetCommercialURL = this.configJSON.basicInformation.commercialURL
-                  }
-
-               }
-
-               // Get tags
-               if (this.configJSON.basicInformation.tags !== undefined) {
-                  this.assetTags = this.configJSON.basicInformation.tags
-               }
-            }
-         }
       }
    }
 </script>

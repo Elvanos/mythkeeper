@@ -12,14 +12,16 @@
 
         </div>
 
+
+        <landingHelpComponent v-if="isOpened"></landingHelpComponent>
+
         <div class="appGrid" :class="[{isDisabled: appStatus === false}]">
-            <commandSidebar></commandSidebar>
+            <sidebar></sidebar>
 
-            <appCommandLine></appCommandLine>
+            <topCommandLine></topCommandLine>
 
-            <moduleCommandBar></moduleCommandBar>
 
-            <moduleWrapper></moduleWrapper>
+            <centerModuleWrapper></centerModuleWrapper>
 
 
         </div>
@@ -31,17 +33,15 @@
 </template>
 
 <script>
-   // Default
-   //import SystemInformation from './LandingPage/SystemInformation'
 
-   // Packages
+   // Help page
+   import landingHelpComponent from './landingHelpComponent/landingHelpComponent'
 
 
    // Template parts
-   import commandSidebar from './layout/commandSidebar'
-   import appCommandLine from './layout/appCommandLine'
-   import moduleCommandBar from './layout/moduleCommandBar'
-   import moduleWrapper from './layout/moduleWrapper'
+   import sidebar from './layout/sidebar'
+   import topCommandLine from './layout/topCommandLine'
+   import centerModuleWrapper from './layout/centerModuleWrapper'
 
 
    export default {
@@ -50,22 +50,33 @@
          return {}
       },
       computed: {
+         isOpened() {
+            return this.$store.getters.getAppBarStatus
+         },
          appStatus() {
             return this.$store.getters.getAppStatus
          }
       },
       components: {
          //SystemInformation,
-
-         commandSidebar,
-         appCommandLine,
-         moduleCommandBar,
-         moduleWrapper
+         landingHelpComponent,
+         sidebar,
+         topCommandLine,
+         centerModuleWrapper
 
       },
       methods: {},
       created() {
-         this.$store.dispatch('setAppStatusEnabled')
+         if (process.env.NODE_ENV === 'development') {
+            this.$store.dispatch('enableApp')
+            this.$store.dispatch('closeSidebar')
+            this.$store.dispatch('setCurrentModule', 'assets')
+         }
+         else {
+            this.$store.dispatch('enableApp')
+            this.$store.dispatch('openSidebar')
+            this.$store.dispatch('setCurrentModule', false)
+         }
 
       }
    }
@@ -79,9 +90,47 @@
 
 </style>
 
+
 <style lang="sass" scoped>
+    .masterOverlay
+        position: fixed
+        height: 100vh
+        width: 100vw
+        z-index: 200000
+        display: flex
+        justify-content: center
+        align-items: center
+
+        .overlayContentWrapper
+            background-image: url('~@/assets/images/backgrounds/topBarBackground.jpg')
+            background-size: cover
+            padding: 50px
+            border-radius: 5px
+            display: flex
+            flex-direction: column
+            align-items: center
+            border: 2px solid rgba(0, 0, 0, 0.5)
+
+            .overlayMessage
+                font-family: "Elementary Gothic", sans-serif
+                font-size: 18px
+                font-weight: 600
+                color: #fff
+                letter-spacing: 3px
+                filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.7))
+
+            .spinnerWrapper
+                margin-bottom: 20px
+                > div
+                    filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
+                    color: #dcdcdc
+                    width: 75px
+                    height: 75px
 
 
+</style>
+
+<style lang="sass" scoped>
     .appGrid
         position: relative
         display: flex
@@ -111,43 +160,6 @@
                 z-index: 190001
                 mix-blend-mode: hue
                 background-color: black
-
-    .masterOverlay
-        position: fixed
-        height: 100vh
-        width: 100vw
-        z-index: 200000
-        display: flex
-        justify-content: center
-        align-items: center
-
-        .overlayContentWrapper
-            background-image: url('~@/assets/images/backgrounds/topBarBackground.jpg')
-            background-size: cover
-            padding: 50px
-            border-radius: 5px
-            display: flex
-            flex-direction: column
-            align-items: center
-            border: 2px solid rgba(0, 0, 0, 0.5)
-
-            .overlayMessage
-                font-family: "Elementary Gothic", sans-serif
-                font-size: 18px
-                font-weight: 600
-                color: #fff
-                letter-spacing: 3px
-                filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.7))
-
-
-            .spinnerWrapper
-                margin-bottom: 20px
-                >div
-                    filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
-                    color: #dcdcdc
-                    width: 75px
-                    height: 75px
-
 
 
 </style>

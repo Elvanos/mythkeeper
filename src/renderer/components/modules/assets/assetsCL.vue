@@ -2,31 +2,38 @@
 
     <div>
 
-        <commandBarButton
+        <!--<topCommandLineButton
+                v-tooltip.bottom-end="`Get CA List`"
+                :disabled=false
+                :icon="`general-add`"
+                :action="getCAList"
+        ></topCommandLineButton>-->
+
+        <topCommandLineButton
                 v-tooltip.bottom-end="`Add a new asset from local file`"
                 :disabled=false
-                commandIcon="general-add"
+                :icon="`general-add`"
                 :action="addAssetLocal"
-        ></commandBarButton>
+        ></topCommandLineButton>
 
-        <commandBarButton
+        <topCommandLineButton
                 v-tooltip.bottom-end="`Backup all assets`"
                 :disabled=false
-                commandIcon="general-join"
+                :icon="`general-join`"
                 :confirmMessage="`
                 This will overwrite backed up assets with the current active iteration*. Proceed?
                 <br><br>
                 * assets that are only backups with no active iteration will be left alone
                 `"
                 :action="backupAllAssets"
-        ></commandBarButton>
+        ></topCommandLineButton>
 
-        <commandBarButton
-                v-tooltip.bottom-end="`Refresh asset list`"
+        <topCommandLineButton
+                v-tooltip.bottom-end="`Refresh app. <br> Use only if the list of assets isnt properly syncing`"
                 :disabled=false
-                commandIcon="general-refresh"
+                :icon="`general-refresh`"
                 :action="refreshAssets"
-        ></commandBarButton>
+        ></topCommandLineButton>
 
     </div>
 
@@ -36,45 +43,66 @@
 
    import {remote} from 'electron'
 
+
    const path = require("path")
    const {dialog} = require('electron').remote;
    const fs = require('fs-extra')
    const StreamZip = require('node-stream-zip')
 
-   import commandBarButton from '../../layout/subparts/commandBarButton'
+   import topCommandLineButton from '../../layout/topCommandLine/topCommandLineButton'
 
 
    export default {
       name: 'assetsCL',
-      components: {commandBarButton},
-      computed: {},
+      components: {topCommandLineButton},
       methods: {
+         scrollTopTop: function () {
+            const options = {
+               container: '#centerModuleWrapper',
+               easing: 'ease-in',
+               offset: -60,
+               force: true,
+               cancelable: true,
+               onStart: function (element) {
+                  // scrolling started
+               },
+               onDone: function (element) {
+                  // scrolling is done
+               },
+               onCancel: function () {
+                  // scrolling has been interrupted
+               },
+               x: false,
+               y: true
+            }
+
+            this.$scrollTo('#centerModuleWrapper', 500, options)
+         },
+         getCAList: function () {
+
+            this.$http.get("https://www.cartographyassets.com/api/index.php?resources/").then((response) => {
+               console.log(response.data)
+            })
+
+
+         },
          backupAllAssets: function () {
-            this.$store.dispatch('setAppStatusDisabled')
+            this.$store.dispatch('disableApp')
             setTimeout(() => {
 
                this.$store.dispatch('backupAllAssets').then(
                    () => {
-                      this.$store.dispatch('setAppStatusEnabled')
+                      this.$store.dispatch('enableApp')
                    }).then(
                    () => {
                       this.$awn.success("All assets successfully backed up")
                    })
             }, 50)
          },
-         refreshAssets: function (event) {
-            this.$store.dispatch('setAppStatusDisabled')
-                .then(() => {
-                   this.$store.dispatch('refreshAssetListCombined')
-                       .then(() => {
-                          this.$store.dispatch('setAppStatusEnabled')
-                              .then(() => {
-                                 this.$awn.success("Asset list reloaded")
-                              })
-                       })
-                })
+         refreshAssets: function () {
+            remote.getCurrentWindow().reload()
          },
-         addAssetLocal: function (event) {
+         addAssetLocal: function () {
             const userDesktop = remote.app.getPath('desktop')
             const userDataFolder = remote.app.getPath('appData')
             let isNested = false
@@ -90,11 +118,11 @@
             }
 
 
-            this.$store.dispatch('setAppStatusDisabled')
+            this.$store.dispatch('disableApp')
                 .then(() => {
 
                    const successFunction = (wasAdded) => {
-                      this.$store.dispatch('setAppStatusEnabled')
+                      this.$store.dispatch('enableApp')
                           .then(() => {
                              if (wasAdded) {
                                 this.$awn.success("Asset successfully added")
@@ -104,7 +132,7 @@
                    }
 
                    const abortFunction = () => {
-                      this.$store.dispatch('setAppStatusEnabled')
+                      this.$store.dispatch('enableApp')
                           .then(() => {
                              this.$awn.warning("Asset adding aborted")
 
@@ -112,16 +140,15 @@
                    }
 
                    const errorFunction = () => {
-                      this.$store.dispatch('setAppStatusEnabled')
+                      this.$store.dispatch('enableApp')
                           .then(() => {
                              this.$awn.error("Error reading the file. Something is wrong with it.")
                           })
                    }
 
-                   const unpackAsset = (assetFolder, zip) => {
+                   const unpackAsset = (assetFolder, zip, unpackPath) => {
 
                       setTimeout(() => {
-
 
                          if (isNested) {
                             assetFolder = userDataFolder + '/Wonderdraft/assets/'
@@ -129,21 +156,18 @@
                             fs.mkdirSync(assetFolder)
                          }
 
+
                          zip.extract(null, assetFolder, (err, count) => {
 
                             zip.close()
+
                             if (err) {
                                console.log(err)
                                errorFunction()
                             } else {
                                successFunction(true)
-                               this.$store.dispatch('setAppStatusDisabled')
-                                   .then(() => {
-                                      this.$store.dispatch('refreshAssetListCombined')
-                                          .then(() => {
-                                             this.$store.dispatch('setAppStatusEnabled')
-                                          })
-                                   })
+                               this.scrollTopTop()
+                               this.$store.dispatch('enableApp')
                             }
 
                          })
@@ -152,14 +176,22 @@
                    }
 
 
-                   const unpackAssetCheck = (assetName, zip) => {
+                   const unpackAssetCheck = (assetName, zip, corePath, isNested) => {
                       const extension = path.extname(assetName)
                       assetName = path.basename(assetName, extension)
 
                       const assetFolder = userDataFolder + '/Wonderdraft/assets/' + assetName
 
+                      corePath = corePath.slice(0, -1)
+                      const comparePath = path.dirname(assetFolder) + '/' + corePath
 
-                      if (fs.existsSync(assetFolder)) {
+                      let compareFolderExists = fs.existsSync(comparePath)
+                      let assetFolderExists = fs.existsSync(assetFolder)
+
+                      if (comparePath === assetFolder) compareFolderExists = false
+
+
+                      if (compareFolderExists || assetFolderExists) {
                          this.$dialog
                              .confirm('The assets seems to be already installed. Overwrite?',
                                  {
@@ -167,12 +199,25 @@
                                     cancelText: 'Cancel'
                                  })
                              .then(() => {
-                                fs.removeSync(assetFolder)
-                                unpackAsset(assetFolder, zip)
+
+                                if (compareFolderExists && isNested === true) {
+                                   fs.removeSync(comparePath)
+                                   setTimeout(() => {
+                                      unpackAsset(comparePath, zip, 'core')
+                                   }, 250)
+
+                                }
+
+                                if (assetFolderExists || isNested === false) {
+                                   fs.removeSync(assetFolder)
+                                   setTimeout(() => {
+                                      unpackAsset(assetFolder, zip, 'assets')
+                                   }, 250)
+                                }
 
                              })
                              .catch((err) => {
-                                abortFunction(assetFolder, zip)
+                                abortFunction(assetFolder, zip, assetFolderExists, 'assets')
                                 zip.close()
                              })
 
@@ -203,6 +248,7 @@
 
                          const assetStructure = {
                             hasMetaFile: false,
+                            corePath: '',
 
                             hasFontsFolder: false,
 
@@ -219,10 +265,17 @@
                             hasWater: false
                          }
 
+                         let firstCheck = 0
 
                          for (const entry of Object.values(zip.entries())) {
 
                             let filePath = entry.name
+
+                            if (firstCheck === 0) {
+                               firstCheck++
+                               assetStructure.corePath = entry.name
+                            }
+
 
                             //if (filePath.includes('mythKeeperSettings.json')) assetStructure.hasMetaFile = true
 
@@ -325,7 +378,7 @@
                              )
 
                          ) {
-                            unpackAssetCheck(fileNames[0], zip)
+                            unpackAssetCheck(fileNames[0], zip, assetStructure.corePath, isNested)
                          }
                          else {
                             this.$dialog
@@ -336,7 +389,7 @@
                                     })
                                 .then(() => {
                                    isNested = false
-                                   unpackAssetCheck(fileNames[0], zip)
+                                   unpackAssetCheck(fileNames[0], zip, assetStructure.corePath, isNested)
 
                                 })
                                 .catch(() => {
