@@ -95,7 +95,7 @@
         position: relative
         height: 40px
         width: 40px
-        margin-left: 10px
+        margin-left: 15px
 
         // Background
         background-image: url('~@/assets/images/backgrounds/buttonBackground.png')

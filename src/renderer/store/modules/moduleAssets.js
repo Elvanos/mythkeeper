@@ -1,4 +1,5 @@
 const fs = require('fs-extra')
+const zipFolder = require('zip-folder')
 
 import {remote} from 'electron'
 
@@ -88,17 +89,25 @@ const actions = {
          fs.removeSync(assetDeletedPath)
       }
 
-
-      // Copy the new backup
+      // Copy the new deleted backup
       try {
-         fs.copySync(assetPath, assetDeletedPath)
+         fs.copySync(assetPath, assetDeletedPath+'/'+ assetDir)
       } catch (err) {
          console.error(err)
       }
 
-      // Delete the folder
-      fs.removeSync(assetPath)
+      // Copy the new backup
+      zipFolder(assetDeletedPath, assetDeletedPath+'.zip', function(err) {
+         if(err) {
+            //console.log(err)
+         } else {
 
+            // Delete the folder
+            fs.removeSync(assetPath)
+            fs.removeSync(assetDeletedPath)
+
+         }
+      })
 
    },
 
@@ -125,12 +134,15 @@ const actions = {
          fs.removeSync(assetBackupPath)
       }
 
-      // Copy the new backup
-      try {
-         fs.copySync(assetPath, assetBackupPath)
-      } catch (err) {
-         console.error(err)
-      }
+      setTimeout(function() {
+         // Copy the new backup
+         try {
+            fs.copySync(assetPath, assetBackupPath)
+         } catch (err) {
+            console.error(err)
+         }
+      }, 250)
+
 
 
    },
@@ -182,13 +194,22 @@ const actions = {
 
       // Copy the new deleted backup
       try {
-         fs.copySync(assetBackupPath, assetPathDeleted)
+         fs.copySync(assetBackupPath, assetPathDeleted+'/'+ assetDir)
       } catch (err) {
          console.error(err)
       }
 
-      // Delete the folder
-      fs.removeSync(assetBackupPath)
+      zipFolder(assetPathDeleted, assetPathDeleted+'.zip', function(err) {
+         if(err) {
+            //console.log(err)
+         } else {
+
+            // Delete the folder
+            fs.removeSync(assetBackupPath)
+            fs.removeSync(assetPathDeleted)
+         }
+      })
+
 
    },
 

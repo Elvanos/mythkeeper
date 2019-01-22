@@ -4,7 +4,7 @@
 
         <assetMiniature
                 v-for="singleAssetFolder in composedList"
-                :key="`singleAssetFolder-${singleAssetFolder.folderName}`"
+                :key="`singleAssetFolder-${singleAssetFolder.folderName}-${singleAssetFolder.status}`"
 
                 :folder="singleAssetFolder.folderName"
                 :status="singleAssetFolder.status"
@@ -87,7 +87,10 @@
 
             this.composedList = composedList
 
-            //console.log(this.composedList)
+
+            //console.log("Backup folders")
+            //console.log(this.folderListBackup[0])
+
 
          },
 
@@ -111,16 +114,27 @@
 
             let configFileContent
 
+
             if (fs.existsSync(configFilePath) && path.basename(configFilePath) === 'mythKeeperSettings.json') {
 
-               setTimeout(() =>{
+               setTimeout(() => {
                   configFileContent = JSON.parse(fs.readFileSync(configFilePath, 'utf8'))
 
-                  const pairedAsset = this.composedList.filter(asset => (asset.folderName === assetFolderName))
-                  if (pairedAsset[0].status === status) {
-                     pairedAsset[0].config = configFileContent
-                     this.refreshList()
+                  if (status === 'normal') {
+                     const pairedAsset = this.folderList.filter(asset => (asset.folderName === assetFolderName))
+                     if (pairedAsset[0] !== undefined) {
+                        pairedAsset[0].config = configFileContent
+                        this.refreshList()
+                     }
+                     if (status === 'backup') {
+                        const pairedAsset = this.folderListBackup.filter(asset => (asset.folderName === assetFolderName))
+                        if (pairedAsset[0] !== undefined) {
+                           pairedAsset[0].config = configFileContent
+                           this.refreshList()
+                        }
+                     }
                   }
+
                }, 250)
 
             }
@@ -160,6 +174,7 @@
                   '**/**/fonts',
 
                   '**/**/metafiles',
+                  '**/tempMKAsset'
 
                ],
             }
@@ -277,7 +292,8 @@
 
             this.watcherAssetDirectoryMKBackup.on('add', path => {
                //console.log(`File ${path} has been added`)
-                this.appendConfigFile(path, 'backup')
+               console.log('adding config key')
+               this.appendConfigFile(path, 'backup')
             })
             this.watcherAssetDirectoryMKBackup.on('change', path => {
                //console.log(`File ${path} has been changed`)
@@ -285,7 +301,7 @@
             })
             this.watcherAssetDirectoryMKBackup.on('unlink', path => {
                //console.log(`File ${path} has been removed`)
-                 this.removeConfigFile(path, 'backup')
+               this.removeConfigFile(path, 'backup')
             })
 
             this.watcherAssetDirectoryMKBackup.on('addDir', path => {
@@ -304,6 +320,7 @@
 
                          }
                      )
+
                      const folderListPaths = this.folderListBackup.map(function (item, index) {
                         return item.folderName
                      });

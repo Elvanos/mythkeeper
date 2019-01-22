@@ -1,9 +1,31 @@
 <template>
     <div class="sidebar" :class="{ '-collapsed': isOpened}">
-        <sidebarButton title="Assets" action="assets"></sidebarButton>
-        <sidebarButton title="Themes" action="themes" :disabled="true"></sidebarButton>
-        <sidebarButton title="Profiles" action="profiles" :disabled=true></sidebarButton>
-        <sidebarButton title="CA Client" action="caClient" :disabled=true></sidebarButton>
+        <sidebarButton
+                :title="`Assets`"
+                :heading="`Assets`"
+                action="assets">
+        </sidebarButton>
+
+        <sidebarButton
+                :title="`Themes - Not available yet`"
+                :heading="`Themes`"
+                action="themes"
+                :disabled="true">
+        </sidebarButton>
+
+        <sidebarButton
+                :title="`Profiles - Not available yet`"
+                :heading="`Profiles`"
+                action="profiles"
+                :disabled=true>
+        </sidebarButton>
+
+        <sidebarButton
+                :title="`CA Client - Not available yet`"
+                :heading="`CA Client`"
+                action="caClient"
+                :disabled=true>
+        </sidebarButton>
 
         <appFunctionalityBar></appFunctionalityBar>
 

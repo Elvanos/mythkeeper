@@ -78,6 +78,7 @@
             this.$store.dispatch('setCurrentModule', false)
          }
 
+
       }
    }
 </script>

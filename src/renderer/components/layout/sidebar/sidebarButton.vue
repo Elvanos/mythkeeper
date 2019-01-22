@@ -13,7 +13,7 @@
             action
          ]"></div>
 
-        {{title}}
+        {{heading}}
 
     </div>
 </template>
@@ -32,6 +32,7 @@
       },
       props: {
          title: String,
+         heading: String,
          disabled: {
             type: Boolean,
             default: false,
