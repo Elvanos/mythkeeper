@@ -1,7 +1,8 @@
 const state = {
    appBarOpened: true,
    currentModule: false,
-   isAppEnabled: true
+   isAppEnabled: true,
+   uiHelpEnabled: true,
 }
 
 const getters ={
@@ -13,6 +14,9 @@ const getters ={
    },
    getAppStatus: (state) => {
       return state.isAppEnabled
+   },
+   getUIhelpStatus: (state) => {
+      return state.uiHelpEnabled
    }
 }
 
@@ -31,10 +35,24 @@ const mutations = {
    },
    APP_ENABLE(state) {
       state.isAppEnabled = true
+   },
+   UIHELP_DISABLE(state) {
+      state.uiHelpEnabled = false
+   },
+   UIHELP_ENABLE(state) {
+      state.uiHelpEnabled = true
    }
 }
 
 const actions = {
+
+   enableUIhelp({commit}) {
+      commit('UIHELP_ENABLE')
+   },
+
+   disableUIhelp({commit}) {
+      commit('UIHELP_DISABLE')
+   },
 
    enableApp({commit}) {
       commit('APP_ENABLE')
@@ -43,6 +61,7 @@ const actions = {
    disableApp({commit}) {
       commit('APP_DISABLE')
    },
+
 
    openSidebar({commit}) {
       commit('SET_SIDEBAR_OPENED')

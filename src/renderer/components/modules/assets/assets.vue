@@ -89,7 +89,7 @@
 
 
             //console.log("Backup folders")
-            //console.log(this.folderListBackup[0])
+            //console.log(this.folderListBackup)
 
 
          },
@@ -114,7 +114,6 @@
 
             let configFileContent
 
-
             if (fs.existsSync(configFilePath) && path.basename(configFilePath) === 'mythKeeperSettings.json') {
 
                setTimeout(() => {
@@ -126,14 +125,16 @@
                         pairedAsset[0].config = configFileContent
                         this.refreshList()
                      }
-                     if (status === 'backup') {
-                        const pairedAsset = this.folderListBackup.filter(asset => (asset.folderName === assetFolderName))
-                        if (pairedAsset[0] !== undefined) {
-                           pairedAsset[0].config = configFileContent
-                           this.refreshList()
-                        }
+                  }
+                  if (status === 'backup') {
+
+                     const pairedAsset = this.folderListBackup.filter(asset => (asset.folderName === assetFolderName))
+                     if (pairedAsset[0] !== undefined) {
+                        pairedAsset[0].config = configFileContent
+                        this.refreshList()
                      }
                   }
+
 
                }, 250)
 
@@ -292,7 +293,6 @@
 
             this.watcherAssetDirectoryMKBackup.on('add', path => {
                //console.log(`File ${path} has been added`)
-               console.log('adding config key')
                this.appendConfigFile(path, 'backup')
             })
             this.watcherAssetDirectoryMKBackup.on('change', path => {

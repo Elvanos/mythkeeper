@@ -126,7 +126,7 @@
 
         .icon
             // Sizing & positioning
-            filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
+            filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5))
 
             pointer-events: none
             transition: $transition-DefaultType 0.5s all

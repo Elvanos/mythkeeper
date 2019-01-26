@@ -78,6 +78,9 @@
             this.$store.dispatch('setCurrentModule', false)
          }
 
+         //this.$store.dispatch('openSidebar')
+         //this.$store.dispatch('setCurrentModule', false)
+
 
       }
    }
@@ -88,6 +91,31 @@
     @import "../assets/sass/htmlElements"
     @import "../assets/sass/globalHelperClasses"
     @import "../assets/sass/tooltipPlugin"
+
+</style>
+
+<style lang="sass">
+    .vue-lb-content
+        background-image: url('~@/assets/images/backgrounds/assetMiniatureBackground.png')
+        border: 30px solid
+        border-radius: 10px
+        margin: 0
+        border-image: url('~@/assets/images/backgrounds/topBarBackground.jpg') 50 round
+        transition: $transition-DefaultType all 0.5s !important
+
+        .vue-lb-button-close,
+        .vue-lb-footer,
+        .vue-lb-header
+            display: none !important
+
+        .vue-lb-thumbnail-wrapper
+            display: none !important
+
+        .vue-lb-figure
+            transition: $transition-DefaultType all 0.5s !important
+            img
+                transition: $transition-DefaultType all 0.5s !important
+
 
 </style>
 

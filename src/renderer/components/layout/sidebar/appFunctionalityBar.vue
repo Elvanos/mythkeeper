@@ -1,9 +1,13 @@
 <template>
     <div class="appFunctionalityBar">
 
-        <div class="settings -gear" v-tooltip.top-start="`Wanna peak under the hood? <br> This toggles developer tools`" @click=toggleDevTools></div>
+
+
+        <div class="settings -info" v-tooltip.top-start="`Open the starting guide`" @click=loadGuide></div>
 
         <div class="settings -refresh" v-tooltip.top-start="`Refresh the whole app`" @click=refreshApp></div>
+
+        <div class="settings -gear" v-tooltip.top-start="`Wanna peak under the hood? <br> This toggles developer tools`" @click=toggleDevTools></div>
 
     </div>
 </template>
@@ -22,6 +26,10 @@
          },
          toggleDevTools(){
             remote.getCurrentWindow().toggleDevTools()
+         },
+         loadGuide(){
+            this.$store.dispatch('openSidebar')
+            this.$store.dispatch('setCurrentModule', false)
          }
       }
    }
@@ -53,6 +61,10 @@
 
         // Background
         background-size: contain
+
+        &.-info
+            // Background
+            background-image: url('~@/assets/images/icons/info.svg')
 
         &.-gear
             // Background

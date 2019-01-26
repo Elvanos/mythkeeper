@@ -27,6 +27,9 @@
                 :disabled=true>
         </sidebarButton>
 
+        <donateButton></donateButton>
+
+
         <appFunctionalityBar></appFunctionalityBar>
 
     </div>
@@ -37,6 +40,8 @@
 <script>
    import sidebarButton from './sidebar/sidebarButton'
    import appFunctionalityBar from './sidebar/appFunctionalityBar'
+   import donateButton from './sidebar/donateButton'
+
 
 
    export default {
@@ -48,7 +53,8 @@
       },
       components: {
          sidebarButton,
-         appFunctionalityBar
+         appFunctionalityBar,
+         donateButton
       },
 
    }
@@ -89,5 +95,7 @@
                 color: transparent
                 text-indent: -200px
                 text-shadow: none
+
+
 
 </style>

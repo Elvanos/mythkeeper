@@ -373,9 +373,6 @@
             this.getAssetSize()
          }, 10000)
 
-
-
-
       },
 
       beforeDestroy:function () {
@@ -781,30 +778,7 @@
    }
 </script>
 
-<style lang="sass">
-    .vue-lb-content
-        background-image: url('~@/assets/images/backgrounds/assetMiniatureBackground.png')
-        border: 30px solid
-        border-radius: 10px
-        margin: 0
-        border-image: url('~@/assets/images/backgrounds/topBarBackground.jpg') 50 round
-        transition: $transition-DefaultType all 0.5s !important
 
-        .vue-lb-button-close,
-        .vue-lb-footer,
-        .vue-lb-header
-            display: none !important
-
-        .vue-lb-thumbnail-wrapper
-            display: none !important
-
-        .vue-lb-figure
-            transition: $transition-DefaultType all 0.5s !important
-            img
-                transition: $transition-DefaultType all 0.5s !important
-
-
-</style>
 
 <style lang="sass" scoped>
 
@@ -820,6 +794,8 @@
         letter-spacing: 1.5px
         padding: 15px
         position: relative
+        display: flex
+        flex-flow: column
 
         &:before,
         &:after
@@ -1019,6 +995,7 @@
 
         .assetActions
             display: flex
+            margin-top: auto
 
             .button
                 position: relative
@@ -1068,10 +1045,10 @@
 
                 .sprite
                     // Sizing & positioning
-                    filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
+                    filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5))
 
                     pointer-events: none
-    //transition: $transition-DefaultType 0.5s all, linear 0s background-image
+
 
 
 </style>

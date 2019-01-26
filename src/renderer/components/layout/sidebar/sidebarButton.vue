@@ -67,7 +67,7 @@
         font-family: 'Elementary Gothic', sans-serif
         font-size: 18px
         font-weight: 600
-        text-shadow: 0 0 10px #e4e4e4
+        text-shadow: 0 0 10px rgba(228, 228, 228, 0.75)
         text-align: left
         color: #e4e4e4
         transition: $transition-DefaultType 0.6s all, $transition-DefaultType 0.3s color, $transition-DefaultType 0.3s margin, linear 0.3s width
