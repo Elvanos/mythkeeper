@@ -2,12 +2,12 @@
 
     <div>
 
-        <!--<topCommandLineButton
+        <topCommandLineButton
                 v-tooltip.bottom-end="`Add a new asset from CA`"
                 :disabled=false
                 :icon="`general-basket`"
                 :action="getCAList"
-        ></topCommandLineButton>-->
+        ></topCommandLineButton>
 
 
         <topCommandLineButton

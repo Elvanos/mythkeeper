@@ -49,13 +49,10 @@
             this.$emit('guide-change', guide)
          },
          zoomImage(event){
-
-            const targetElement = event.target
-            if (targetElement.classList.contains('isZoomed')) {
-               targetElement.classList.remove("isZoomed")
-            } else {
-               targetElement.classList.add("isZoomed")
-            }
+            const targetElementSrc = event.target.src
+            this.$store.dispatch('overlayZoomSetSRC', targetElementSrc).then(() => {
+               this.$store.dispatch('overlayEnableZoom')
+            })
          }
       }
 
@@ -84,7 +81,7 @@
         &.zoomIn
             transition: $transition-DefaultType 0.3s all
             cursor: zoom-in
-            
+
             &.isZoomed
                 z-index: 10
                 position: absolute

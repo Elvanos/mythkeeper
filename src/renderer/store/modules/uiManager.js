@@ -3,6 +3,8 @@ const state = {
    currentModule: false,
    isAppEnabled: true,
    uiHelpEnabled: true,
+   overlayZoomIsZoomed: false,
+   overlayZoomSRC: null
 }
 
 const getters ={
@@ -17,7 +19,13 @@ const getters ={
    },
    getUIhelpStatus: (state) => {
       return state.uiHelpEnabled
-   }
+   },
+   getOverlayZoomState: (state) => {
+      return state.overlayZoomIsZoomed
+   },
+   getOverlayZoomSRC: (state) => {
+      return state.overlayZoomSRC
+   },
 }
 
 const mutations = {
@@ -41,6 +49,15 @@ const mutations = {
    },
    UIHELP_ENABLE(state) {
       state.uiHelpEnabled = true
+   },
+   OVERLAY_ZOOM_ENABLE(state) {
+      state.overlayZoomIsZoomed = true
+   },
+   OVERLAY_ZOOM_DISABLE(state) {
+      state.overlayZoomIsZoomed = false
+   },
+   OVERLAY_ZOOM_SET_SRC(state, value) {
+      state.overlayZoomSRC = value
    }
 }
 
@@ -54,6 +71,9 @@ const actions = {
       commit('UIHELP_DISABLE')
    },
 
+
+
+
    enableApp({commit}) {
       commit('APP_ENABLE')
    },
@@ -61,6 +81,8 @@ const actions = {
    disableApp({commit}) {
       commit('APP_DISABLE')
    },
+
+
 
 
    openSidebar({commit}) {
@@ -71,11 +93,26 @@ const actions = {
       commit('SET_SIDEBAR_CLOSED')
    },
 
+
+
    setCurrentModule({commit, dispatch, state}, value) {
-
       commit('SET_CURRENT_MODULE',value)
+   },
 
-   }
+
+
+   overlayEnableZoom({commit}) {
+      commit('OVERLAY_ZOOM_ENABLE')
+   },
+
+   overlayDisableZoom({commit}) {
+      commit('OVERLAY_ZOOM_DISABLE')
+   },
+
+   overlayZoomSetSRC({commit, dispatch, state}, value) {
+      commit('OVERLAY_ZOOM_SET_SRC',value)
+   },
+
 }
 
 export default {

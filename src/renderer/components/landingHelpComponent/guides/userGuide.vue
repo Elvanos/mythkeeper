@@ -28,11 +28,13 @@
             Linux versions later down the line!</strong></p>
 
         <h3 id="downloadmythkeeperhttpswwwcartographyassetscomassetsmythkeeperassetmanager68">
-            <span class="link" v-on:click="openURL('https://www.cartographyassets.com/assets/mythkeeper-asset-manager.68/')">
+            <span class="link"
+                  v-on:click="openURL('https://www.cartographyassets.com/assets/mythkeeper-asset-manager.68/')">
                 DOWNLOAD MYTHKEEPER</span> - Read below
         </h3>
         <p>
-            You obviously don't have to do this, since you are in the program right now, but if you ever want to check for a newer version, the link is the same.
+            You obviously don't have to do this, since you are in the program right now, but if you ever want to check
+            for a newer version, the link is the same.
         </p>
 
         <h2 id="afewprinciplesoftheprogram">A few principles of the program</h2>
@@ -84,10 +86,6 @@
             <li><p><strong>Unified folder structure of assets</strong> - all assets that are Mythkeeper compatible will
                 come in prebuild way. If the asset package isn't up to the standards, then Mythkeeper will inform of
                 this and ask you if still wish to install.</p></li>
-
-            <p>
-                <li>
-            <p>You will find a mostly offline of this guide inside Mythkeeper as well!</p></li>
         </ul>
 
 
@@ -100,16 +98,15 @@
         <p>An image with explanations of what different things on the intro
             screen do
 
-            <img src="~@/assets/images/guides/userguide/mkstartScreen.jpg">
+            <img src="~@/assets/images/guides/userguide/mkstartScreen.jpg" @click="zoomImage" class="zoomIn">
         </p>
-
 
 
         <h3 id="theassetsscreen">The Assets screen</h3>
 
         <p>An image with explanations of what different things on the Assets
             module screen do
-            <img src="~@/assets/images/guides/userguide/moduleAssets.jpg" >
+            <img src="~@/assets/images/guides/userguide/moduleAssets.jpg" @click="zoomImage" class="zoomIn">
 
         </p>
     </div>
@@ -132,14 +129,11 @@
          openGuideOnParent(guide) {
             this.$emit('guide-change', guide)
          },
-         zoomImage(event){
-
-            const targetElement = event.target
-            if (targetElement.classList.contains('isZoomed')) {
-               targetElement.classList.remove("isZoomed")
-            } else {
-               targetElement.classList.add("isZoomed")
-            }
+         zoomImage(event) {
+            const targetElementSrc = event.target.src
+            this.$store.dispatch('overlayZoomSetSRC', targetElementSrc).then(() => {
+               this.$store.dispatch('overlayEnableZoom')
+               })
          }
       }
 
@@ -169,13 +163,6 @@
             transition: $transition-DefaultType 0.3s all
             cursor: zoom-in
 
-            &.isZoomed
-                z-index: 10
-                position: fixed
-                top: 0
-                left: -2px
-                width: 90%
-                cursor: zoom-out
 </style>
 
 

@@ -2,16 +2,10 @@
 
     <div class="app">
 
-        <div class="masterOverlay" v-if="appStatus === false">
-            <div class="overlayContentWrapper">
-                <div class="spinnerWrapper">
-                    <Spinner name="circle"/>
-                </div>
-                <div class="overlayMessage">Processing request</div>
-            </div>
-
+        <div class="overlays">
+            <imageZoom></imageZoom>
+            <disableOverlay></disableOverlay>
         </div>
-
 
         <landingHelpComponent v-if="isOpened"></landingHelpComponent>
 
@@ -19,7 +13,6 @@
             <sidebar></sidebar>
 
             <topCommandLine></topCommandLine>
-
 
             <centerModuleWrapper></centerModuleWrapper>
 
@@ -36,6 +29,10 @@
 
    // Help page
    import landingHelpComponent from './landingHelpComponent/landingHelpComponent'
+
+   // Overlays
+   import imageZoom from './layout/overlays/imageZoom'
+   import disableOverlay from './layout/overlays/disableOverlay'
 
 
    // Template parts
@@ -62,7 +59,9 @@
          landingHelpComponent,
          sidebar,
          topCommandLine,
-         centerModuleWrapper
+         centerModuleWrapper,
+         imageZoom,
+         disableOverlay
 
       },
       methods: {},
@@ -115,46 +114,6 @@
             transition: $transition-DefaultType all 0.5s !important
             img
                 transition: $transition-DefaultType all 0.5s !important
-
-
-</style>
-
-
-<style lang="sass" scoped>
-    .masterOverlay
-        position: fixed
-        height: 100vh
-        width: 100vw
-        z-index: 200000
-        display: flex
-        justify-content: center
-        align-items: center
-
-        .overlayContentWrapper
-            background-image: url('~@/assets/images/backgrounds/topBarBackground.jpg')
-            background-size: cover
-            padding: 50px
-            border-radius: 5px
-            display: flex
-            flex-direction: column
-            align-items: center
-            border: 2px solid rgba(0, 0, 0, 0.5)
-
-            .overlayMessage
-                font-family: "Elementary Gothic", sans-serif
-                font-size: 18px
-                font-weight: 600
-                color: #fff
-                letter-spacing: 3px
-                filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.7))
-
-            .spinnerWrapper
-                margin-bottom: 20px
-                > div
-                    filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 1))
-                    color: #dcdcdc
-                    width: 75px
-                    height: 75px
 
 
 </style>

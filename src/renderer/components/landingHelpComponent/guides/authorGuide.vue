@@ -49,7 +49,7 @@
 
             <li><strong>A picture explaining what we mean by "low" and "top"
                 level folders</strong>
-                <img src="~@/assets/images/guides/authorGuide/MK-folders.jpg">
+                <img src="~@/assets/images/guides/authorGuide/MK-folders.jpg" @click="zoomImage" class="zoomIn">
             </li>
 
 
@@ -73,12 +73,12 @@
             structure.</p>
 
         <p>A picture of how your asset folder should look like
-            <img src="~@/assets/images/guides/authorGuide/MKmethod1.jpg">
+            <img src="~@/assets/images/guides/authorGuide/MKmethod1.jpg" @click="zoomImage" class="zoomIn">
         </p>
 
 
         <p>A picture of what the zip folder should look like if you were to open it manually
-            <img src="~@/assets/images/guides/authorGuide/MKmethod1-unpack.jpg">
+            <img src="~@/assets/images/guides/authorGuide/MKmethod1-unpack.jpg" @click="zoomImage" class="zoomIn">
         </p>
 
         <hr/>
@@ -97,11 +97,11 @@
             structure.</p>
 
         <p>A picture of what your asset folder should look like
-        <img src="~@/assets/images/guides/authorGuide/MKmethod2.jpg">
+        <img src="~@/assets/images/guides/authorGuide/MKmethod2.jpg" @click="zoomImage" class="zoomIn">
         </p>
 
         <p>A picture of what the zip folder should look like if you were to open it manually
-             <img src="~@/assets/images/guides/authorGuide/MKmethod2-unpack.jpg">
+             <img src="~@/assets/images/guides/authorGuide/MKmethod2-unpack.jpg" @click="zoomImage" class="zoomIn">
         </p>
 
         <hr/>
@@ -121,11 +121,11 @@
             structure.</p>
 
         <p>A picture of what your asset folder should look like
-            <img src="~@/assets/images/guides/authorGuide/MKmethod3.jpg">
+            <img src="~@/assets/images/guides/authorGuide/MKmethod3.jpg" @click="zoomImage" class="zoomIn">
         </p>
 
         <p>A picture of what the zip folder should look like if you were to open it manually
-             <img src="~@/assets/images/guides/authorGuide/MKmethod3-unpack.jpg">
+             <img src="~@/assets/images/guides/authorGuide/MKmethod3-unpack.jpg" @click="zoomImage" class="zoomIn">
         </p>
 
         <hr/>
@@ -136,7 +136,7 @@
 
         <p><strong>An example of what an asset with properly filled in
             metadata looks like compared to one without it</strong>
-            <img src="~@/assets/images/guides/authorGuide/configfiledifference.jpg">
+            <img src="~@/assets/images/guides/authorGuide/configfiledifference.jpg" @click="zoomImage" class="zoomIn">
         </p>
 
         <p><strong>!!!PLEASE NOTE THAT DIFFERENT AUTOMATIC LICENSE LINKS WILL BE ADDED TO MK IN THE NEAR
@@ -204,7 +204,7 @@
         <h3 id="anexampleofafolderstructure">An example of a folder structure</h3>
 
         <p>A picture of example folder structure with explanation
-            <img src="~@/assets/images/guides/authorGuide/MK-metafiles.jpg">
+            <img src="~@/assets/images/guides/authorGuide/MK-metafiles.jpg" @click="zoomImage" class="zoomIn">
         </p>
 
         <h3 id="anexampleoftheconfigfile">An example of the config file</h3>
@@ -245,6 +245,12 @@
          },
          openGuideOnParent(guide){
             this.$emit('guide-change', guide)
+         },
+         zoomImage(event) {
+            const targetElementSrc = event.target.src
+            this.$store.dispatch('overlayZoomSetSRC', targetElementSrc).then(() => {
+               this.$store.dispatch('overlayEnableZoom')
+            })
          }
       }
 
@@ -269,6 +275,10 @@
         border-radius: 5px
         display: block
         max-width: 100%
+
+        &.zoomIn
+            transition: $transition-DefaultType 0.3s all
+            cursor: zoom-in
 
 </style>
 

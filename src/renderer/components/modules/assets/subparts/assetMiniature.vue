@@ -716,7 +716,7 @@
                    .then(() => {
 
                       this.$awn.success("Asset backup deleted")
-                      this.isDisabled = false
+                      //this.isDisabled = false
 
                    })
             }, 250)
@@ -767,7 +767,7 @@
                this.$store.dispatch('deleteAsset', this.$props.folder)
                    .then(() => {
                       this.$awn.success("Asset deleted")
-                      this.isDisabled = false
+                      //this.isDisabled = false
                    })
             }, 250)
 

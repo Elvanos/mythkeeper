@@ -3,7 +3,12 @@ const zipFolder = require('zip-folder')
 
 import {remote} from 'electron'
 
-const userDataFolder = remote.app.getPath('appData')
+let userDataFolder = remote.app.getPath('appData')
+
+// Linux fix for different pathing
+if (process.platform === 'linux' && !fs.existsSync(userDataFolder)) {
+   userDataFolder = remote.app.getPath('appData')+'/.local/share/'
+}
 
 const assetsFolder = userDataFolder + '/Wonderdraft/assets'
 const assetsFolderBackup = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets'
