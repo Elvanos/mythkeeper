@@ -46,7 +46,6 @@
             <div class="preview" v-tooltip.bottom-start="assetPreviewTitle" :class="[{hasPreview: hasPreview}]">
 
                 <slot v-if="hasPreview === true">
-
                     <img :src="assetPreview" v-on:click="openPreview()">
                 </slot>
 
@@ -369,13 +368,13 @@
          this.getAssetSize()
          this.reloadAssetData()
 
-         this.assetSizeInterval = setInterval(()=>{
+         this.assetSizeInterval = setInterval(() => {
             this.getAssetSize()
          }, 10000)
 
       },
 
-      beforeDestroy:function () {
+      beforeDestroy: function () {
          clearInterval(this.assetSizeInterval)
       },
 
@@ -543,7 +542,7 @@
 
                   // Get gallery
                   if (fs.existsSync(metaFilesPath + 'gallery')) {
-                     this.hasGallery = true
+
 
                      const galleryImages = fs.readdirSync(metaFilesPath + 'gallery', 'utf8', function (err, data) {
                         if (err) {
@@ -556,6 +555,15 @@
 
                         }
                      })
+
+
+                     if (galleryImages.length > 0) {
+                        this.hasGallery = true
+                     } else {
+                        this.hasGallery = false
+                     }
+
+
 
                      this.assetGalleryLightBoxImageSettings = []
 
@@ -700,8 +708,7 @@
          // Delete asset backup
          deleteAssetBackupConfirm() {
             this.$dialog
-                .confirm('Delete backup of the asset? It can be retrieved manually later, but gets removed from the list'
-                )
+                .confirm('Delete backup of the asset? It can be retrieved manually later, but gets removed from the list')
                 .then(() => {
                    this.deleteAssetBackup()
                 })
@@ -777,7 +784,6 @@
       }
    }
 </script>
-
 
 
 <style lang="sass" scoped>
@@ -1048,7 +1054,6 @@
                     filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5))
 
                     pointer-events: none
-
 
 
 </style>

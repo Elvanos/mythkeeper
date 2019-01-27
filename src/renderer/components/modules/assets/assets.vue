@@ -45,8 +45,8 @@
       data: function () {
          return {
             userDataFolderPath: this.$store.getters.getUserDataFolder,
-            assetsFolderPath: this.$store.getters.getUserDataFolder + '/Wonderdraft/assets',
-            assetsFolderPathMKBackup: this.$store.getters.getUserDataFolder + '/Wonderdraft/_mythKeeper/backup/assets',
+            assetsFolderPath: this.$store.getters.getAssetsFolder,
+            assetsFolderPathMKBackup: this.$store.getters.getAssetsFolderBackup,
             watcherAssetDirectory: null,
             watcherAssetDirectoryMKBackup: null,
             firstTimeSort: true,
@@ -88,8 +88,8 @@
             this.composedList = composedList
 
 
-            //console.log("Backup folders")
-            //console.log(this.folderListBackup)
+            //console.log("Composed list")
+            //console.log(this.composedList)
 
 
          },
@@ -152,7 +152,7 @@
                fs.readdirSync(configPath).length,
 
             ]
-            let checkLength = 0
+            let checkLength = 1
 
             const watcherOptions = {
                persistent: true,
@@ -174,13 +174,14 @@
 
                   '**/**/fonts',
 
+                  '**/**/names',
+
                   '**/**/metafiles',
                   '**/tempMKAsset'
 
                ],
             }
             this.watcherAssetDirectory = chokidar.watch(configPath, watcherOptions)
-
 
             this.watcherAssetDirectory.on('add', path => {
                //console.log(`File ${path} has been added`)
@@ -194,12 +195,21 @@
                this.removeConfigFile(path, 'normal')
             })
 
+
             this.watcherAssetDirectory.on('addDir', path => {
 
-               //console.log(`Directory ${path} has been added`)
+
+               // Glitch while overwriting folders - reload the config file manually
+               setTimeout(() => {
+                  if (fs.existsSync(configPath + '/' + path + '/mythKeeperSettings.json')) {
+                     this.appendConfigFile(path + '\\mythKeeperSettings.json', 'normal')
+                  }
+               }, 250)
+
 
                if (path !== '') {
-                  if (checkLength > starterFoldersLength) {
+
+                  if (checkLength > starterFoldersLength[0]) {
                      // Add items a first AFTER load
                      this.folderList.unshift(
                          {
@@ -262,7 +272,7 @@
                fs.readdirSync(configPath).length,
 
             ]
-            let checkLength = 0
+            let checkLength = 1
 
             const watcherOptions = {
                persistent: true,
@@ -283,6 +293,8 @@
                   '**/**/water',
 
                   '**/**/fonts',
+
+                  '**/**/names',
 
                   '**/**/metafiles',
 
