@@ -14,7 +14,6 @@
    import assets from '../modules/assets/assets'
    import themes from '../modules/themes/themes'
    import profiles from '../modules/profiles/profiles'
-   import caClient from '../modules/caClient/caClient'
 
 
    export default {
@@ -22,8 +21,7 @@
       components: {
          assets,
          themes,
-         profiles,
-         caClient
+         profiles
       },
       computed: {
          activeModule() {

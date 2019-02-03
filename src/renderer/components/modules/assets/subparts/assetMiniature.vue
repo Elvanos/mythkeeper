@@ -557,29 +557,24 @@
                      })
 
 
+                     // Set gallery only if it has some actual images in it
                      if (galleryImages.length > 0) {
                         this.hasGallery = true
-                     } else {
-                        this.hasGallery = false
+
+                        this.assetGalleryLightBoxImageSettings = []
+
+                        this.assetGalleryLightBoxImageSettings = galleryImages.map(image => {
+
+                           // Fix file pathing for background images
+                           let filePath = 'file:///' + metaFilesPath + 'gallery/' + image
+                           filePath = filePath.replace(/\\/g, "/")
+
+                           return {
+                              thumb: filePath,
+                              src: metaFilesPath + 'gallery/' + image,
+                           }
+                        })
                      }
-
-
-
-                     this.assetGalleryLightBoxImageSettings = []
-
-                     this.assetGalleryLightBoxImageSettings = galleryImages.map(image => {
-
-                        // Fix file pathing for background images
-                        let filePath = 'file:///' + metaFilesPath + 'gallery/' + image
-                        filePath = filePath.replace(/\\/g, "/")
-
-                        return {
-                           thumb: filePath,
-                           src: metaFilesPath + 'gallery/' + image,
-                        }
-                     })
-
-
                   }
 
                   // Get license & commentary
@@ -1004,7 +999,6 @@
             margin-top: auto
 
             .button
-                position: relative
                 flex-grow: 0
 
                 // Display

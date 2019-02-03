@@ -129,8 +129,6 @@
         overflow-y: auto
         +M_scrollbars($size: 10px, $foreground-color: #444342)
 
-
-
         .inner
             margin: auto
             max-width: 1200px

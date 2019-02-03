@@ -26,11 +26,32 @@ const state = {
    assetsFolderBackup: assetsFolderBackup,
    assetsFolderDeleted: assetsFolderDeleted,
    listAssetsFolders: [],
-   listAssetsFoldersBackup: []
+   listAssetsFoldersBackup: [],
+   listAssetsData: [],
+   recentlyInstalledCAAsset: 0,
+   tempMultifileData: {
+      id: 0,
+      downloadPath: ''
+   },
+   tempAssetData: {
+      vendors: {
+         cartographyassetsID: 0,
+         cartographyassetsVersion: 0
+      },
+      newData: false
+   }
 
 }
 
 const getters = {
+   getAssetTempData: (state) => {
+      return state.tempAssetData
+   },
+
+   getRecentlyInstalledCAAsset: (state) => {
+      return state.recentlyInstalledCAAsset
+   },
+
    getUserDataFolder: (state) => {
       return state.userDataFolder
    },
@@ -49,10 +70,37 @@ const getters = {
    },
    getListAssetsFolderBackup: (state) => {
       return state.listAssetsFoldersBackup
-   }
+   },
+
+   getListAssetsData: (state) => {
+      return state.listAssetsData
+   },
+
+   getMultiFileTempData: (state) => {
+      return state.tempMultifileData
+   },
+
 }
 
 const mutations = {
+
+   UPDATE_RECENT_CA_ASSET(state, value) {
+      state.recentlyInstalledCAAsset = value
+   },
+   UPDATE_TEMP_DATA(state, value) {
+      if (value.vendors !== undefined) {
+         state.tempAssetData.vendors.cartographyassetsID = value.vendors.cartographyassetsID
+         state.tempAssetData.vendors.cartographyassetsVersion = value.vendors.cartographyassetsVersion
+      }
+      state.tempAssetData.newData = value.newData
+
+   },
+   UPDATE_MULTIFLE_DATA(state, value) {
+      state.tempMultifileData = value
+
+      console.log(state.tempMultifileData)
+   },
+
    UPDATE_ASSET_LIST(state, value) {
       state.listAssetsFolders = value
    },
@@ -60,10 +108,42 @@ const mutations = {
       state.listAssetsFoldersBackup = value
    },
 
+   UPDATE_ASSET_LIST_DATA(state, value) {
+      state.listAssetsData = value
+   },
+
 }
 
 const actions = {
 
+   updateRecentCAAsset({commit}, update) {
+      commit('UPDATE_RECENT_CA_ASSET', update)
+   },
+
+   updateAssetTempData({commit}, update) {
+
+      commit('UPDATE_TEMP_DATA', update)
+   },
+
+   updateMultifileTempData({commit}, update) {
+
+      commit('UPDATE_MULTIFLE_DATA', update)
+   },
+
+   resetMultifileTempData({commit}) {
+      const update = {
+         id: 0,
+         downloadPath: ''
+      }
+      commit('UPDATE_MULTIFLE_DATA', update)
+   },
+
+   resetAssetTempData({commit}) {
+      const update = {
+         newData: false
+      }
+      commit('UPDATE_TEMP_DATA', update)
+   },
 
    updateAssetList({commit}, list) {
 
@@ -75,6 +155,10 @@ const actions = {
       commit('UPDATE_ASSET_LIST_BACKUP', list)
    },
 
+   updateAssetListData({commit}, list) {
+
+      commit('UPDATE_ASSET_LIST_DATA', list)
+   },
 
    // Retrieve a deleted asset
    retrieveDeletedAsset({commit, state, dispatch}) {
@@ -170,6 +254,14 @@ const actions = {
       }
 
       const utils = {
+         deleteCATempFolder: () => {
+            setTimeout(() => {
+               if (fs.existsSync(assetsFolder + '/tempMKDownload')) {
+                  fs.removeSync(assetsFolder + '/tempMKDownload')
+               }
+
+            }, 250)
+         },
          deleteTempFolder: () => {
             setTimeout(() => {
                if (fs.existsSync(assetsFolder + '/tempMKAsset')) {
@@ -180,6 +272,7 @@ const actions = {
             }, 250)
          },
          clearSuccess: () => {
+            dispatch('resetAssetTempData')
             dispatch('enableApp')
                 .then(() => {
                    utils.scrollToTop()
@@ -187,6 +280,7 @@ const actions = {
                 })
          },
          clearAbort: () => {
+            dispatch('resetAssetTempData')
             dispatch('enableApp')
                 .then(() => {
                    this._vm.$awn.warning("Asset adding aborted")
@@ -194,9 +288,10 @@ const actions = {
                 })
          },
          clearError: () => {
+            dispatch('resetAssetTempData')
             dispatch('enableApp')
                 .then(() => {
-                   this._vm.$awn.error("Error reading the file. Something is wrong with it.")
+                   this._vm.$awn.alert("Error reading the file. Something is wrong with it.")
                 })
          },
          structureCheckCondition: (filePath) => {
@@ -282,7 +377,7 @@ const actions = {
 
 
          },
-         scrollToTop: () =>{
+         scrollToTop: () => {
             const options = {
                container: '#centerModuleWrapper',
                easing: 'ease-in',
@@ -422,11 +517,13 @@ const actions = {
 
             // Create normal path and check if it already exists
             const assetFolderPath = assetsFolder + '/' + assetStructure.assetFolderName
+            const assetFolderPathCore = assetsFolder + '/' + assetStructure.corePath
             let assetFolderPathExists = fs.existsSync(assetFolderPath)
+            let assetFolderPathCoreExists = fs.existsSync(assetFolderPathCore)
 
 
             // If the asset exists, ask user what to do
-            if (assetFolderPathExists) {
+            if (assetFolderPathExists || assetFolderPathCoreExists) {
                this._vm.$dialog
                    .confirm('The assets seems to be already installed. Overwrite?',
                        {
@@ -514,9 +611,17 @@ const actions = {
 
                      // Exit if method 1 or 2
                      if (assetStructure.isOverpacked === false) {
+
+                        // If the asset was downloaded from CA, run merge
+                        if (state.tempAssetData.newData && packageMethod === 'method1') unpacking.mergeCA(extractFolder + '/' + assetStructure.corePath)
+                        if (state.tempAssetData.newData && packageMethod === 'method2') unpacking.mergeCA(extractFolder)
+
+
                         utils.clearSuccess()
                         ////TODO
                         //this.scrollTopTop()
+
+                        // Refresh app
                         dispatch('enableApp')
                      }
 
@@ -570,10 +675,14 @@ const actions = {
                                 assetsFolder + '/tempMKAsset/assets/' + innerFolder,
                                 assetsFolder + '/' + innerFolder)
 
+                            // If the asset was downloaded from CA, run merge
+                            if (state.tempAssetData.newData) unpacking.mergeCA()
+
                             utils.clearSuccess()
                             utils.deleteTempFolder()
                             //TODO
                             //this.scrollTopTop()
+
                             dispatch('enableApp')
 
                          } catch (err) {
@@ -589,6 +698,7 @@ const actions = {
 
                       // If user aborts
                       utils.clearAbort()
+                      utils.deleteCATempFolder()
                       utils.deleteTempFolder()
                    })
 
@@ -602,6 +712,10 @@ const actions = {
 
                      utils.deleteTempFolder()
                      utils.structureCheckCondition()
+
+                     // If the asset was downloaded from CA, run merge
+                     if (state.tempAssetData.newData) unpacking.mergeCA(assetsFolder + '/' + innerFolder)
+
                      dispatch('enableApp')
 
                      //TODO
@@ -610,6 +724,7 @@ const actions = {
                   } catch (err) {
                      utils.clearError()
                      utils.deleteTempFolder()
+                     utils.deleteCATempFolder()
                      console.error(err)
                   }
                }, 250)
@@ -618,6 +733,28 @@ const actions = {
 
 
          },
+
+         // 4.2 Cleanup CA temp folder and append data
+         mergeCA: (assetFolderUnpack) => {
+
+            let settingsJSON = {}
+            if (fs.existsSync(assetFolderUnpack + '/mythKeeperSettings.json')) {
+
+               settingsJSON = JSON.parse(fs.readFileSync(assetFolderUnpack + '/mythKeeperSettings.json', 'utf8'))
+
+            }
+
+            if (settingsJSON.vendors === undefined) settingsJSON.vendors = {}
+            settingsJSON.vendors.cartographyassetsID = state.tempAssetData.vendors.cartographyassetsID
+            settingsJSON.vendors.cartographyassetsVersion = state.tempAssetData.vendors.cartographyassetsVersion
+
+            fs.writeFileSync(assetFolderUnpack + '/mythKeeperSettings.json', JSON.stringify(settingsJSON))
+            dispatch('updateRecentCAAsset', settingsJSON.vendors.cartographyassetsID)
+
+            utils.deleteCATempFolder()
+
+         },
+
 
       }
 
@@ -629,7 +766,7 @@ const actions = {
    },
 
 
-// Delete asset
+   // Delete asset
    deleteAsset({commit, state, dispatch}, assetDir) {
 
       const assetPath = assetsFolder + '/' + assetDir

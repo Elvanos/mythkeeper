@@ -11,10 +11,7 @@
                 :postLoadAdded="singleAssetFolder.postLoadAdded"
                 :config="singleAssetFolder.config"
 
-
-        >
-
-        </assetMiniature>
+        />
 
     </div>
 
@@ -87,6 +84,14 @@
 
             this.composedList = composedList
 
+            // Update globals with config info
+            this.$store.dispatch('updateAssetListData', composedList.map(asset => {
+               let returnValue = asset.config
+               if (asset.config !== false && asset.status !== undefined) {
+                  asset.config.status = asset.status
+               }
+               return returnValue
+            }))
 
             //console.log("Composed list")
             //console.log(this.composedList)
@@ -117,7 +122,18 @@
             if (fs.existsSync(configFilePath) && path.basename(configFilePath) === 'mythKeeperSettings.json') {
 
                setTimeout(() => {
-                  configFileContent = JSON.parse(fs.readFileSync(configFilePath, 'utf8'))
+
+                  try {
+                     configFileContent = JSON.parse(fs.readFileSync(configFilePath, 'utf8'))
+                  } catch(e) {
+                     console.error(e)
+
+                     this.$awn.alert(`Error at: ${configFilePath} <br> ${e}`)
+
+                     return
+                  }
+
+
 
                   if (status === 'normal') {
                      const pairedAsset = this.folderList.filter(asset => (asset.folderName === assetFolderName))
@@ -177,7 +193,11 @@
                   '**/**/names',
 
                   '**/**/metafiles',
-                  '**/tempMKAsset'
+                  '**/**/_mkDisabled',
+
+                  '**/tempMKAsset',
+                  '**/tempMKDownload'
+
 
                ],
             }
@@ -297,6 +317,12 @@
                   '**/**/names',
 
                   '**/**/metafiles',
+                  '**/**/_mkDisabled',
+
+                  '**/tempMKAsset',
+                  '**/tempMKDownload'
+
+
 
                ],
             }

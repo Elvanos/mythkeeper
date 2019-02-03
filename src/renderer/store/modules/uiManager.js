@@ -1,10 +1,13 @@
 const state = {
    appBarOpened: true,
    currentModule: false,
+   currentModuleCA: false,
    isAppEnabled: true,
    uiHelpEnabled: true,
    overlayZoomIsZoomed: false,
-   overlayZoomSRC: null
+   overlayZoomSRC: null,
+   overlayMultiFileIsShown: false,
+   overlayMultiFileArray: [],
 }
 
 const getters ={
@@ -13,6 +16,9 @@ const getters ={
    },
    getCurrentModule: (state) => {
       return state.currentModule
+   },
+   getCurrentModuleCA: (state) => {
+      return state.currentModuleCA
    },
    getAppStatus: (state) => {
       return state.isAppEnabled
@@ -26,6 +32,12 @@ const getters ={
    getOverlayZoomSRC: (state) => {
       return state.overlayZoomSRC
    },
+   getOverlayMultiFileIsShown: (state) => {
+      return state.overlayMultiFileIsShown
+   },
+   getOverlayMultiFileArray: (state) => {
+      return state.overlayMultiFileArray
+   },
 }
 
 const mutations = {
@@ -37,6 +49,9 @@ const mutations = {
    },
    SET_CURRENT_MODULE(state, value) {
       state.currentModule = value
+   },
+   SET_CURRENT_MODULE_CA(state, value) {
+      state.currentModuleCA = value
    },
    APP_DISABLE(state) {
       state.isAppEnabled = false
@@ -58,6 +73,15 @@ const mutations = {
    },
    OVERLAY_ZOOM_SET_SRC(state, value) {
       state.overlayZoomSRC = value
+   },
+   OVERLAY_MULTIFILE_ENABLE(state) {
+      state.overlayMultiFileIsShown = true
+   },
+   OVERLAY_MULTIFILE_DISABLE(state) {
+      state.overlayMultiFileIsShown = false
+   },
+   OVERLAY_MULTIFILE_SET_ARRAY(state, value) {
+      state.overlayMultiFileArray = value
    }
 }
 
@@ -70,8 +94,6 @@ const actions = {
    disableUIhelp({commit}) {
       commit('UIHELP_DISABLE')
    },
-
-
 
 
    enableApp({commit}) {
@@ -100,6 +122,12 @@ const actions = {
    },
 
 
+   setCurrentModuleCA({commit, dispatch, state}, value) {
+      commit('SET_CURRENT_MODULE_CA',value)
+   },
+
+
+
 
    overlayEnableZoom({commit}) {
       commit('OVERLAY_ZOOM_ENABLE')
@@ -111,6 +139,18 @@ const actions = {
 
    overlayZoomSetSRC({commit, dispatch, state}, value) {
       commit('OVERLAY_ZOOM_SET_SRC',value)
+   },
+
+   overlayMultifileEnable({commit}) {
+      commit('OVERLAY_MULTIFILE_ENABLE')
+   },
+
+   overlayMultifileDisable({commit}) {
+      commit('OVERLAY_MULTIFILE_DISABLE')
+   },
+
+   overlayMultifileSetArray({commit, dispatch, state}, value) {
+      commit('OVERLAY_MULTIFILE_SET_ARRAY',value)
    },
 
 }

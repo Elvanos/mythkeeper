@@ -43,6 +43,7 @@
         background-color: rgba(0, 0, 0, 0.85)
         cursor: zoom-out
         overflow: auto
+        +M_scrollbars($size: 10px, $foreground-color: #444342)
 
         *
             cursor: zoom-out

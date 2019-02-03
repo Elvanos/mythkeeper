@@ -1,0 +1,70 @@
+html
+	.v-select
+		background-color: #a0a5b2
+		border: 1px solid black
+		border-radius: 3px
+		cursor: pointer
+		
+		*
+			cursor: pointer
+			font-size: 15.5px
+		
+		
+		&.searchable
+			.dropdown-toggle
+				cursor: pointer
+
+			.selected-tag
+				color: #000
+				cursor: pointer
+		
+		.dropdown-menu
+			background-color: #a0a5b2
+			overflow: auto
+			margin-top: 1px
+			+M_scrollbars($size: 10px, $foreground-color: #444342)
+			max-height: 200px !important
+			z-index: 20
+			
+			a
+				border-bottom: 1px solid rgba(0, 0, 0, 0.5)
+				padding: 7.5px 15px
+				
+			.active
+				a
+					background-color: rgba(0, 0, 0, 0.6)
+					color: #e0e0e0
+				
+			.highlight
+				a
+					background-color: rgba(0, 0, 0, 0.6)
+					color: #e0e0e0
+
+		.selected-tag
+			cursor: default
+			
+			.close
+				opacity: 1
+				span
+					color: #940002
+					cursor: pointer
+					font-size: 22px
+					
+		.vs__actions
+			pointer-events: none
+			
+		.open-indicator
+			&:before
+				border-color: black
+				
+		&.open
+			.open-indicator
+				&:before
+					margin-top: 10px
+					
+			
+		&.single
+			.vs__actions
+				.clear
+					display: none
+

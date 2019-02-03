@@ -20,13 +20,6 @@
                 :disabled=true>
         </sidebarButton>
 
-        <sidebarButton
-                :title="`CA Client - Not available yet`"
-                :heading="`CA Client`"
-                action="caClient"
-                :disabled=true>
-        </sidebarButton>
-
         <donateButton></donateButton>
 
 

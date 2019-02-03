@@ -4,7 +4,7 @@
 
         <p>If you are a Wonderdraft user and you keep eyeing all those fancy custom assets but aren't sure how to
             install them or if you are a person who has so many assets installed that you don't even know what is what
-            anyone, this is the guide for you!</p>
+            anymore, this is the guide for you!</p>
 
         <hr/>
 

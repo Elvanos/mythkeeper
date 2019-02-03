@@ -14,15 +14,13 @@
    import assetsCL from '../modules/assets/assetsCL'
    import themesCL from '../modules/themes/themesCL'
    import profilesCL from '../modules/profiles/profilesCL'
-   import caClientCL from '../modules/caClient/caClientCL'
 
    export default {
       name: "topCommandLine",
       components: {
          assetsCL,
          themesCL,
-         profilesCL,
-         caClientCL
+         profilesCL
       },
       computed: {
          hasModule() {

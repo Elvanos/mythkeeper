@@ -3,9 +3,12 @@
     <div class="app">
 
         <div class="overlays">
+            <multiFileOverlay></multiFileOverlay>
             <imageZoom></imageZoom>
             <disableOverlay></disableOverlay>
+            <caOverlay></caOverlay>
         </div>
+
 
         <landingHelpComponent v-if="isOpened"></landingHelpComponent>
 
@@ -33,7 +36,8 @@
    // Overlays
    import imageZoom from './layout/overlays/imageZoom'
    import disableOverlay from './layout/overlays/disableOverlay'
-
+   import caOverlay from './layout/overlays/caOverlay'
+   import multiFileOverlay from './layout/overlays/multiFileOverlay'
 
    // Template parts
    import sidebar from './layout/sidebar'
@@ -56,6 +60,8 @@
       },
       components: {
          //SystemInformation,
+         caOverlay,
+         multiFileOverlay,
          landingHelpComponent,
          sidebar,
          topCommandLine,
@@ -68,14 +74,23 @@
       created() {
          if (process.env.NODE_ENV === 'development') {
             this.$store.dispatch('enableApp')
+            this.$store.dispatch('overlayMultifileDisable')
             this.$store.dispatch('closeSidebar')
+            this.$store.dispatch('resetMultifileTempData')
             this.$store.dispatch('setCurrentModule', 'assets')
+            this.$store.dispatch('setCurrentModuleCA', false)
          }
          else {
             this.$store.dispatch('enableApp')
+            this.$store.dispatch('overlayMultifileDisable')
             this.$store.dispatch('openSidebar')
+            this.$store.dispatch('resetMultifileTempData')
             this.$store.dispatch('setCurrentModule', false)
+            this.$store.dispatch('setCurrentModuleCA', false)
          }
+
+
+         //this.$store.dispatch('overlayMultifileEnable')
 
          //this.$store.dispatch('openSidebar')
          //this.$store.dispatch('setCurrentModule', false)
@@ -90,6 +105,10 @@
     @import "../assets/sass/htmlElements"
     @import "../assets/sass/globalHelperClasses"
     @import "../assets/sass/tooltipPlugin"
+    @import "../assets/sass/selectPlugin"
+    @import "../assets/sass/togglePlugin"
+    @import "../assets/sass/sliderPlugin"
+
 
 </style>
 

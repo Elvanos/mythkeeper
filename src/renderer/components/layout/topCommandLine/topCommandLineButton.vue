@@ -4,10 +4,10 @@
         <slot v-if="!this.$props.confirmMessage">
             <div
                     class="topCommandLineButton"
-                    :class="[{ 'disabled': disabled}]"
+                    :class="[{ 'disabled': disabled},{'hasText': text}]"
                     :title="title"
                     v-on:click="nonConfirmAction">
-
+                {{text}}
                 <div class="icon sprite"
                      :class="[icon]">
                 </div>
@@ -18,10 +18,10 @@
         <slot v-if="this.$props.confirmMessage">
             <div
                     class="topCommandLineButton"
-                    :class="[{ 'disabled': disabled}]"
+                    :class="[{ 'disabled': disabled},{'hasText': text}]"
                     :title="title"
                     v-on:click="confirmAction">
-
+                {{text}}
                 <div class="icon sprite"
                      :class="[icon]">
                 </div>
@@ -66,6 +66,7 @@
       },
       props: {
          title: String,
+         text: String,
          action: false,
          confirmMessage: false,
          disabled: {
@@ -101,6 +102,7 @@
         background-image: url('~@/assets/images/backgrounds/buttonBackground.png')
         background-size: 105px
         background-position-y: -6px
+        color: #ffffff
 
         // Border
         //border: 1px solid rgba(45, 21, 5, 0.7)
@@ -111,6 +113,14 @@
         border-radius: 3px
 
         filter: sepia(65%)
+
+
+        &.hasText
+            width: inherit
+            padding: 0 10px
+
+            .sprite
+                margin-left: 10px
 
         &:hover:not(.disabled),
         &.-active
@@ -133,3 +143,4 @@
 
 
 </style>
+
