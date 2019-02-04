@@ -14,7 +14,7 @@ let assetsFolder = userDataFolder + '/Wonderdraft/assets'
 
 // Linux fix for different pathing
 if (process.platform === 'linux' && !fs.existsSync(assetsFolder)) {
-   userDataFolder = remote.app.getPath('appData') + '/.local/share/'
+   userDataFolder = '~/.local/share'
    assetsFolder = userDataFolder + '/Wonderdraft/assets'
 }
 
