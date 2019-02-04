@@ -10,12 +10,14 @@ const {dialog} = require('electron').remote;
 
 let userDataFolder = remote.app.getPath('appData')
 
+let assetsFolder = userDataFolder + '/Wonderdraft/assets'
+
 // Linux fix for different pathing
-if (process.platform === 'linux' && !fs.existsSync(userDataFolder)) {
+if (process.platform === 'linux' && !fs.existsSync(assetsFolder)) {
    userDataFolder = remote.app.getPath('appData') + '/.local/share/'
+   assetsFolder = userDataFolder + '/Wonderdraft/assets'
 }
 
-const assetsFolder = userDataFolder + '/Wonderdraft/assets'
 const assetsFolderBackup = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets'
 const assetsFolderDeleted = userDataFolder + '/Wonderdraft/_mythKeeper/deleted/assets'
 
