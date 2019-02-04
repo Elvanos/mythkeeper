@@ -14,8 +14,12 @@ let assetsFolder = userDataFolder + '/Wonderdraft/assets'
 
 // Linux fix for different pathing
 if (process.platform === 'linux' && !fs.existsSync(assetsFolder)) {
-   userDataFolder = '~/.local/share'
-   assetsFolder = userDataFolder + '/Wonderdraft/assets'
+   //userDataFolder = '~/.local/share'
+   userDataFolder = process.env.XDG_DATA_HOME ? path.join(process.env.XDG_DATA_HOME) : path.join(app.getPath('home'), '.local', 'share')
+
+
+   assetsFolder = process.env.XDG_DATA_HOME ? path.join(process.env.XDG_DATA_HOME, 'Wonderdraft', 'assets') : path.join(app.getPath('home'), '.local', 'share', 'Wonderdraft', 'assets')
+
 }
 
 const assetsFolderBackup = userDataFolder + '/Wonderdraft/_mythKeeper/backup/assets'
