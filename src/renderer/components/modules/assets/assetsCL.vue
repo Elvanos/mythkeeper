@@ -3,6 +3,10 @@
     <div>
         <div class="subGrid">
             <div class="left">
+
+            </div>
+
+            <div class="right">
                 <topCommandLineButton
                         v-tooltip.bottom-end="`Add a new asset from CA`"
                         :disabled=false
@@ -10,13 +14,12 @@
                         :action="getCAList"
                         :text="`Cartography Assets client`"
                 ></topCommandLineButton>
-            </div>
 
-            <div class="right">
                 <topCommandLineButton
                         v-tooltip.bottom-end="`Add a new asset from local file`"
                         :disabled=false
                         :icon="`menu-articles-add2`"
+                        :text="`Add local asset`"
                         :action="addAssetLocal"
                 ></topCommandLineButton>
 
@@ -36,7 +39,7 @@
                 <topCommandLineButton
                         v-tooltip.bottom-end="`Restore deleted asset`"
                         :disabled=false
-                        :icon="`general-trash`"
+                        :icon="`general-refresh`"
                         :action="restoreAssetLocal"
                 ></topCommandLineButton>
 

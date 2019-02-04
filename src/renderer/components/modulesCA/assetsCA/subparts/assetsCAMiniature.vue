@@ -1,7 +1,7 @@
 <template>
-    <div class="assetsCAMiniature">
+    <div class="assetsCAMiniature" :class="{incompatible: isMKCompatible}">
 
-        <div class="topLine">
+        <div class="topLine" :class="{incompatible: isMKCompatible}">
             <div class="title" v-tooltip.top-start="assetData.title">
                 {{assetData.title}}
             </div>
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="communityInfo">
-                    <div class="rating" v-tooltip.top-start="`Average rating: ${assetData.rating_avg}/5`">
+                    <div class="rating" :class="{incompatible: isMKCompatible}" v-tooltip.top-start="`Average rating: ${assetData.rating_avg}/5`">
                         <div class="stars">
                             <div class="overlay" :style="`width: ${ratingWidth};`"></div>
                         </div>
@@ -72,7 +72,7 @@
                             {{assetData.rating_count}} {{grammarRatingsMultiple}}
                         </div>
                     </div>
-                    <div class="downloads">
+                    <div class="downloads" :class="{incompatible: isMKCompatible}">
                         <div class="amount">
                             {{assetData.download_count}}
                         </div>
@@ -108,7 +108,7 @@
             </div>
         </div>
 
-        <div class="divider"></div>
+        <div class="divider" :class="{incompatible: isMKCompatible}"></div>
 
         <div class="textContent controlRow">
             <div class="dates">
@@ -121,10 +121,16 @@
                     <div class="content">{{dateFormatFirstUpload}}</div>
                 </div>
             </div>
-            <div class="controlGroup">
+            <div class="controlGroup" :class="{incompatible: isMKCompatible}">
 
-                <slot v-if="!isInstalled && !isInstalledBackup">
+                <slot v-if="!isInstalled && !isInstalledBackup && !isMKCompatible">
                     <div class="downloadButton -download" v-on:click="downloadAsset">
+                        Download <span class="sprite menu-articles-import"></span>
+                    </div>
+                </slot>
+
+                <slot v-if="!isInstalled && !isInstalledBackup && isMKCompatible">
+                    <div class="downloadButton -download incompatible" v-on:click="downloadIncompatible">
                         Download <span class="sprite menu-articles-import"></span>
                     </div>
                 </slot>
@@ -170,7 +176,10 @@
       components: {},
       props: {
          assetData: Object,
-         showInstalled: Boolean
+         showInstalled: {
+            default: true,
+            type: Boolean
+         }
       },
       data: function () {
          return {
@@ -180,6 +189,11 @@
          }
       },
       computed: {
+         isMKCompatible(){
+            console.log(this.$props.assetData.custom_fields.assetmanager)
+            return this.$props.assetData.custom_fields.assetmanager === undefined || this.$props.assetData.custom_fields.assetmanager.yes !== 'yes'
+
+         },
          authorBackupAvatar() {
             return this.$props.assetData.username.slice(0, 1)
          },
@@ -224,8 +238,8 @@
       },
       watch: {
          showInstalled: function (newVal, oldVal) {
-            if (newVal === false && (this.isInstalled || this.isInstalledBackup)) {
-               this.$emit('hideChild', this.$props.assetData.resource_id)
+            if (newVal === false && this.isUpdated && (this.isInstalled || this.isInstalledBackup )) {
+               this.$emit('hideChild', this.$props.assetData.resource_id, this.isUpdated)
             }
          },
          lastInstalledCAAsset: function (newVal, oldVal) {
@@ -238,6 +252,18 @@
          },
       },
       methods: {
+         downloadIncompatible(){
+            this.$dialog
+                .confirm('This asset is marked as incompatible with Mythkeeper by their author.<br>Are you certain?',
+                    {
+                       okText: 'Intall anyway'
+                    })
+                .then(() => {
+                   this.downloadAsset()
+                })
+                .catch(() => {
+                })
+         },
          downloadAsset(event, inputUrl) {
 
             // Set input URL
@@ -406,10 +432,16 @@
 
         transition: 0.5s all
 
+        &.incompatible
+            background-color: #693333
+
         .divider
             background-color: #000
             height: 20px
             margin-top: auto
+
+            &.incompatible
+                background-color: #500b0b
 
         .topLine
             padding: 5px 10px
@@ -418,6 +450,9 @@
             justify-content: space-between
             background-color: #050807
             position: relative
+
+            &.incompatible
+                background-color: #500b0b
 
             .title
                 font-size: 17.5px
@@ -541,6 +576,9 @@
                         justify-content: center
                         flex-direction: column
 
+                        &.incompatible
+                            background-color: #500b0b
+
                         .reviews
                             color: gold
                             font-size: 15px
@@ -575,6 +613,9 @@
                         flex-basis: 50%
                         background-color: #000
                         border-left: 1px solid #262627
+
+                        &.incompatible
+                            background-color: #500b0b
 
                         .amount
                             font-size: 20px
@@ -652,6 +693,9 @@
 
                 border-left: 1px solid #000
 
+                &.incompatible
+                    background-color: #844040
+
                 .moreInfo
                     margin-top: 10px
                     font-size: 13px
@@ -682,6 +726,12 @@
 
                         &:hover
                             background-color: lighten(#41a018, 5%)
+
+                        &.incompatible
+                            background-color: #ee2100
+
+                            &:hover
+                                background-color: lighten(#ee2100, 5%)
 
                     &.-update
                         background-color: #0086a0

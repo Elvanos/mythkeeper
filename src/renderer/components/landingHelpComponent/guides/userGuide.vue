@@ -109,6 +109,14 @@
             <img src="~@/assets/images/guides/userguide/moduleAssets.jpg" @click="zoomImage" class="zoomIn">
 
         </p>
+
+
+        <h3 id="theacassetsscreen">The Cartography Assets module screen for Asset Module</h3>
+
+        <p>An image with explanations of what different things on the AsCartography Assets module screen for Asset Module screen do
+            <img src="~@/assets/images/guides/userguide/moduleCaAssets.jpg" @click="zoomImage" class="zoomIn">
+
+        </p>
     </div>
 
 

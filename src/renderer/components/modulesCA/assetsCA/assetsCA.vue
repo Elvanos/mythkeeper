@@ -4,6 +4,10 @@
 
         <div class="filters">
 
+            <div class="caLogo" v-tooltip.bottom-end="`Visit Cartographyassets.com`" v-on:click="openCALink">
+
+            </div>
+
             <h2>
                 Filters
             </h2>
@@ -161,6 +165,25 @@
                 />
             </div>
 
+            <div class="filterPair">
+                <label for="filterMKSupportCA">Compatibility
+                    <span class="sprite general-info-red"
+                          v-tooltip.bottom-end="`By default we show only assets marked by their authors as Mythkeeper compatible. You can override this behavior by turning this switch off. <br> If you do so, we cannot guarantee that the other assets will work properly or that it will not affect your Wonderdraft asset folder in negative way.<br><br><b>Proceed with caution!</b>`">
+
+                    </span>
+                </label>
+                <toggle-button
+                        id="filterMKSupportCA"
+                        :width="200"
+                        :height="30"
+                        :color="{checked: '#12bd10', unchecked: '#b22727'}"
+                        v-model="filters.mkCompatible"
+                        v-on:change="filterList(true)"
+                        :labels="{checked: 'Only compatible', unchecked: 'All assets'}"
+
+                />
+            </div>
+
 
         </div>
 
@@ -180,6 +203,7 @@
                 />
             </transition-group>
         </div>
+
 
 
     </div>
@@ -235,6 +259,7 @@
                search: '',
                commercialUse: true,
                installed: true,
+               mkCompatible: true,
                isCompatible: true
             }
 
@@ -244,6 +269,9 @@
          this.retrievePagesFromCA()
       },
       methods: {
+         openCALink() {
+            this.$electron.shell.openExternal('https://www.cartographyassets.com/')
+         },
          retrievePagesFromCA() {
             this.$store.dispatch('disableApp')
 
@@ -324,7 +352,24 @@
                 )
 
 
+
+            this.fetchedAssetList = assetList
+
+            this.$store.dispatch('enableApp')
+
+            this.filterList(true)
+
+
+            // Category function for the future, if needed
+            /*this.$http.get(" https://www.cartographyassets.com/api/index.php?resource-categories/").then((response) => {
+            })*/
+
+         },
+         filterList(refresh) {
+            let assetList = this.fetchedAssetList
+
             // Filter the list by MK compatibility checkbox
+            if (this.filters.mkCompatible === true) {
             assetList = assetList
                 .filter((singleAsset) => {
 
@@ -340,40 +385,36 @@
 
                    return MKtest
                 })
+            }
 
 
-            // Build authors & tag base filters
-            assetList.forEach(singleAsset => {
+            if (refresh === true) {
 
-               if (!this.filters.authors.base.includes(singleAsset.username)) this.filters.authors.base.push(singleAsset.username)
+               this.filters.tags.base = []
+               this.filters.authors.base = []
+               this.filters.tags.input = []
+               this.filters.authors.input = []
 
-
-               if (Array.isArray(singleAsset.tags)) {
-                  singleAsset.tags.forEach(tag => {
-                     if (!this.filters.tags.base.includes(tag)) {
-                        this.filters.tags.base.push(tag)
-                     }
-                  })
-               }
-            })
+               // Build authors & tag base filters
+               assetList.forEach(singleAsset => {
+                  if (!this.filters.authors.base.includes(singleAsset.username)) this.filters.authors.base.push(singleAsset.username)
 
 
-            this.filters.tags.base = this.filters.tags.base.sort()
+                  if (Array.isArray(singleAsset.tags)) {
+                     singleAsset.tags.forEach(tag => {
+                        if (!this.filters.tags.base.includes(tag)) {
+                           this.filters.tags.base.push(tag)
+                        }
+                     })
+                  }
+               })
 
-            this.fetchedAssetList = assetList
 
-            this.$store.dispatch('enableApp')
+               this.filters.tags.base = this.filters.tags.base.sort()
+               this.filters.authors.base = this.filters.authors.base.sort()
 
-            this.filterList()
+            }
 
-
-            // Category function for the future, if needed
-            /*this.$http.get(" https://www.cartographyassets.com/api/index.php?resource-categories/").then((response) => {
-            })*/
-
-         },
-         filterList() {
-            let assetList = this.fetchedAssetList
 
             // Filter by child being manually hidden
             if (this.filters.installed === false) {
@@ -532,10 +573,10 @@
 
             this.filteredAssetList = assetList
          },
-         hideChild(id) {
-            // console.log('hiding')
+         hideChild(id, isUpdated) {
             this.fetchedAssetList = this.fetchedAssetList.map(singleAsset => {
-               if (singleAsset.resource_id === id) {
+
+               if (singleAsset.resource_id === id && isUpdated) {
                   singleAsset.isHidden = true
                }
                return singleAsset
@@ -573,6 +614,24 @@
             overflow-y: auto
             overflow-x: visible
             +M_scrollbars($size: 10px, $foreground-color: #444342)
+
+            .caLogo
+                position: absolute
+                background-image: url(~@/assets/images/vendorLogos/caLogo.png)
+                width: 45px
+                height: 45px
+                background-size: contain
+                background-repeat: no-repeat
+                cursor: pointer
+                right: 15px
+                top: 22.5px
+
+                transition: 0.3s $transition-DefaultType all
+
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4))
+
+                &:hover
+                    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8))
 
             h2
                 font-size: 22px

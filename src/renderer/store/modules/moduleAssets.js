@@ -748,7 +748,7 @@ const actions = {
             settingsJSON.vendors.cartographyassetsID = state.tempAssetData.vendors.cartographyassetsID
             settingsJSON.vendors.cartographyassetsVersion = state.tempAssetData.vendors.cartographyassetsVersion
 
-            fs.writeFileSync(assetFolderUnpack + '/mythKeeperSettings.json', JSON.stringify(settingsJSON))
+            fs.writeFileSync(assetFolderUnpack + '/mythKeeperSettings.json', JSON.stringify(settingsJSON,null, 4))
             dispatch('updateRecentCAAsset', settingsJSON.vendors.cartographyassetsID)
 
             utils.deleteCATempFolder()
