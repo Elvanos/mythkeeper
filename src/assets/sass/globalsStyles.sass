@@ -1,0 +1,41 @@
+@import "globals"
+
+@import "globalStyles/moduleStyles"
+
+@import "./vendorTweaks/vueAwesomeNotification"
+
+@import "./vendorTweaks/quasar"
+
+*
+  font-family: 'Open Sans', sans-serif
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+  font-smooth: always
+
+*, :after, :before
+  box-sizing: inherit
+  user-select: none
+
+html,
+body
+  margin: 0
+  overflow: visible
+
+img
+  max-width: 100%
+  max-height: 100%
+  
+h3
+  font-family: Frozito, sans-serif
+  font-size: 24px !important
+  font-weight: 500 !important
+  color: $themeCol-titles !important
+  margin: 20px 0 -17.5px 5px !important
+
+  
+p
+  font-size: 15px
+  line-height: 1.5
+  
+.CodeMirror-vscrollbar
+  +M_scrollbars(5px, $themeCol-titles,rgba($themeCol-text, 0.5))

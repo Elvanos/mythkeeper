@@ -1,0 +1,41 @@
+.moduleTitle
+  color: $themeCol-titles
+  font-family: Frozito, sans-serif
+  font-size: 95px
+  text-align: center
+  
+  +Q_customMax(1366px)
+    font-size: 55px
+
+
+.moduleSubTitle
+  color: $themeCol-titles
+  font-family: Frozito, sans-serif
+  font-size: 23px
+  font-weight: 400
+  text-align: center
+  margin-top: 50px
+  line-height: 1.4
+  
+  +Q_customMax(1366px)
+    font-size: 35px
+    margin-top: 30px
+
+.moduleContent
+  margin-top: 50px
+  
+  +Q_customMax(1366px)
+    margin-top: 30px
+    
+.overlayContainer
+  &__title
+    +M_HorizontalCenterAbsolute
+    position: fixed
+    top: -160px
+    color: $themeCol-titles
+    font-family: Frozito, sans-serif
+    font-size: 95px
+    
+    +Q_customMax(1366px)
+      font-size: 55px
+      top: -85px

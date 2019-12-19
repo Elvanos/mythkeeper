@@ -1,0 +1,8 @@
+=MK_elementBackground($bgPath)
+  &:before
+    +M_AbsoluteFullCover
+    content: ''
+    z-index: 0
+    background-image: url(#{$bgPath})
+    background-color: rgba(#121420, 0.95)
+    background-blend-mode: multiply

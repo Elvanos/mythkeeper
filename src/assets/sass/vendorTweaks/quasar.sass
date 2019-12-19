@@ -1,0 +1,464 @@
+// Scroll
+.scroll
+  +M_scrollbars(5px, $themeCol-titles,rgba($themeCol-text, 0.5))
+  
+// Ripple
+.q-ripple
+  display: none!important
+  
+// Carousel
+.q-carousel.q-panel-parent.fullscreen
+  background-image: url("~@/assets/images/lightboxBackground.png")
+  
+  .q-carousel__slide
+    padding: 0
+    background-image: none !important
+    display: flex
+    justify-content: center
+    align-items: center
+  
+    img
+      max-width: 100%
+      max-height: 100%
+  
+  .q-carousel__control.q-btn
+    background-color: transparent !important
+  
+    &:hover
+      background-color: transparent !important
+  
+// Tooltips
+.q-tooltip
+  margin: 3px
+  font-size: 12px !important
+  font-weight: 500
+  line-height: 1.5 !important
+  z-index: 999999999
+  max-height: calc(100vh - 30px)
+  max-width: calc(100vw - 30px)
+  overflow: hidden
+  white-space: nowrap
+  
+  height: inherit !important
+  padding: 7.5px 12.5px !important
+  
+  background-color: rgba(18, 20, 32, 0.98) !important
+  color: $themeCol-titles !important
+  border: 1px solid $themeCol-elementBorder
+  //border: 1px solid rgba($themeCol-titles, 0.5)
+  box-shadow: 3px 3px 19px rgba(0, 0, 0, 0.68)
+  border-radius: 4px
+  
+  
+// Menu
+.q-menu
+  background-color: $themeCol-genericBackground !important
+  color: $themeCol-titles
+  padding: 15px 0
+  
+  .q-item
+    min-height: 45px
+
+    &.q-highlight-pass
+      background-color: rgba(97,184,51,.4)!important
+      color: $themeCol-titles
+  
+    &.q-item--active
+      
+      .q-focus-helper
+        opacity: 0.22
+        background-color: $themeCol-titles
+        
+        &:before
+          opacity: 0.1
+        &:after
+          opacity: 0.4
+  
+    .q-item__label--caption
+      color: rgba($themeCol-titlesGlow,0.6)
+  
+// Table
+.q-table
+  color: #ffffff
+  
+  .q-table__card--dark
+    background-color: $themeCol-genericBackground !important
+  
+  tbody tr:hover,
+  tbody tr.selected
+    background-color: rgba($themeCol-titles, 0.04) !important
+
+  
+  tbody tr.selected
+    color: $themeCol-titles
+
+// Select
+.q-field
+  &.q-field--disabled
+    filter: grayscale(1)
+    
+.q-select,
+.q-input
+  background-color: rgba(46,48,53,0.8)!important
+  border-radius: 3px 3px 0 0 !important
+  border-bottom: 1px solid rgba(255,255,255, 0.7)
+  
+  &.q-field
+    &.q-field--disabled
+      border-bottom-style: dashed
+  
+  .q-chip--dense
+    font-weight: 600
+    font-size: 13px
+    line-height: 1.1
+    color: $themeCol-textInvert
+    background-color: rgba($themeCol-titles, 0.75)
+    border-radius: 4px
+    padding: 3px 6px 3px
+    margin: 4px 8px 4px 0
+    
+    i
+      font-size: 20px !important
+      margin: 0 -2px 0 5px !important
+      color: $themeCol-ElementBackgroundAlt !important
+      opacity: 0.8 !important
+  
+  input
+    color: #ffffff
+    &::selection
+      background: rgba(255,255,255,1) !important
+      -webkit-text-fill-color: #000 !important
+      
+  .q-field__native
+    padding-bottom: 2px !important
+    
+  &.q-field--float
+    .q-field__label
+      transform: translate3d(0, -45%, 0) scale3d(0.75, 0.75, 1)
+      color: $themeCol-titles
+  
+  .q-field__control
+    min-height: 45px !important
+    
+  .q-field__control:after
+    opacity: 0
+    top: 100% !important
+    transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1), -webkit-transform 0.36s cubic-bezier(0.4, 0, 0.2, 1), opacity .4s cubic-bezier(0.4,0,0.2,1)
+  
+  .q-select__dropdown-icon
+    transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1)
+    
+  &.q-field--focused
+    
+    .q-select__dropdown-icon
+      transform: rotate(180deg)
+    
+    .q-field__control:after
+      opacity: 1
+    
+  .q-field__control-container
+    padding-top: 19px !important
+    border-radius: 3px!important
+    margin: 0!important
+    color: rgba(255,245,198,.7)
+    
+    i
+      font-size: 24px
+      color: $themeCol-titlesGlow
+      margin-top: -9px
+  
+  
+  .q-field__label
+    color: rgba($themeCol-titlesGlow, 0.7)
+    transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1), right 0.36s cubic-bezier(0.4, 0, 0.2, 1), -webkit-transform 0.36s cubic-bezier(0.4, 0, 0.2, 1), color .4s cubic-bezier(0.4,0,0.2,1)
+    top: 12px
+  
+  .q-field__native
+    color: #ffffff
+    
+  .q-field__marginal
+    height: 45px
+    
+  .q-field__append,
+  .q-field__prepend
+    i
+      color: $themeCol-titlesGlow
+  
+  &.-dense
+    
+    input
+      font-size: 13px !important
+      margin-top: -3px
+      
+    .q-field__marginal
+      height: 34px
+  
+    .q-field__control-container i
+      font-size: 22px
+      margin-top: -13px
+      
+    .q-field__append i,
+    .q-field__prepend i
+      font-size: 22px
+  
+    .q-field__label
+      font-size: 15px
+      top: 7px
+      
+    .q-field__control
+      min-height: 1px !important
+      max-height: 36px !important
+  
+    .q-field__native
+      margin-top: -4px !important
+  
+    &.q-field--float .q-field__label
+      transform: translate3d(0, -40%, 0) scale3d(0.65, 0.65, 1)
+      
+// Solo input
+.q-input
+  .q-field__control
+    height: 44px
+  
+  .q-field__native
+    padding-top: 4px !important
+
+
+// Button
+.q-btn
+  font-weight: 600 !important
+  font-size: 14px !important
+  border-radius: 2px !important
+  padding: 4px 8px !important
+  
+  &.-roundMenuIcon
+    font-size: 15px !important
+  
+  &.q-btn--round
+    border-radius: 50% !important
+  
+  &.-bigButton
+    padding: 4px 16px !important
+    min-width: 90px
+    
+  &:not(.q-btn--outline)
+    color: rgba(#000000, 0.7) !important
+    background-color: rgba($themeCol-titles, 0.85) !important
+    
+    &:hover
+      background-color: $themeCol-titles !important
+    
+  &[disabled]
+    &:not(.q-highlight-pass)
+      filter: grayscale(1)
+      
+    &.q-highlight-pass
+      filter: grayscale(0.3)
+      opacity: 0.8 !important
+      
+  .q-focus-helper
+    display: none !important
+
+  &.q-btn--outline
+    border: 2px solid rgba($themeCol-titlesGlow, 0.8) !important
+    color: rgba($themeCol-titlesGlow, 0.8) !important
+    background-color: rgba($themeCol-ElementBackgroundAlt, 0.5) !important
+    
+    &.-noBG
+      background-color: transparent !important
+
+  &:hover:not([disabled]),
+  &.-active:not([disabled])
+    &.q-btn--outline
+      background-color: rgba($themeCol-ElementBackgroundAlt, 0.8) !important
+      color: $themeCol-iconActive !important
+      border: 2px solid $themeCol-iconActive !important
+  
+      &.-noBG
+        background-color: transparent !important
+  
+  &.q-highlight-pass
+    opacity: 1 !important
+    border: 2px solid rgba($themeCol-titlesGlow, 0.8) !important
+    background-color: rgba($themeCol-ElementSuccessHightlight, 0.45) !important
+    color: rgba($themeCol-titlesGlow, 0.8) !important
+    
+    &:hover:not([disabled]),
+    &.-active:not([disabled])
+      border: 2px solid rgba($themeCol-titlesGlow, 1) !important
+      background-color: rgba($themeCol-ElementSuccessHightlight, 0.6) !important
+      color: rgba($themeCol-titlesGlow, 1) !important
+      
+  
+  &.q-highlight-secondaryCta
+    border: 2px solid rgba($themeCol-titlesGlow, 0.8) !important
+    background-color: rgba(63, 197, 220, 0.4) !important
+    color: rgba($themeCol-titlesGlow, 0.8) !important
+  
+    &:hover:not([disabled]),
+    &.-active:not([disabled])
+      border: 2px solid rgba($themeCol-titlesGlow, 1) !important
+      background-color: rgba($themeCol-ElementHightlightSecondary, 0.6) !important
+      color: rgba($themeCol-titlesGlow, 1) !important
+    
+// Checkbox
+.q-checkbox
+  .q-checkbox__bg
+    left: 7px
+    top: 7px
+    width: 26px
+    height: 26px
+    border-radius: 2px !important
+    color: rgba($themeCol-titlesGlow, 0.8) !important
+    border: 2px solid rgba($themeCol-titlesGlow, 0.8) !important
+    background-color: rgba($themeCol-ElementBackgroundAlt, 0.5) !important
+    
+    svg
+      top: 2px
+      left: 2px
+      width: 18px !important
+      height: 18px !important
+
+  .q-checkbox__inner--active
+    .q-checkbox__bg
+      background-color: rgba($themeCol-ElementBackgroundAlt, 0.8) !important
+      color: $themeCol-iconActive !important
+      border: 2px solid $themeCol-iconActive !important
+      
+      svg
+        color: $themeCol-iconActive !important
+
+// Toggle
+.q-toggle
+  background-color: rgba(46,48,53,0.8)!important
+  border-radius: 3px 3px 0 0 !important
+  border-bottom: 1px solid rgba(255,255,255, 0.7)
+  position: relative
+  
+  &:after
+    content: ''
+    height: 2px
+    z-index: 2
+    position: absolute
+    bottom: -2px
+    right: 0
+    left: 0
+    opacity: 0
+    transform: scaleX(.12)
+    transition: .3s cubic-bezier(.4,0,.2,1)
+    background-color: $themeCol-iconActive
+  
+  &.-active
+    &:after
+      opacity: 1
+      transform: scaleX(1)
+  
+  &.-dense
+    
+    .q-toggle__thumb-container
+      top: 9px !important
+    
+    .q-toggle__inner
+      height: 35px
+      padding: 12px
+  
+  .q-toggle__label
+    padding-right: 13px
+    padding-left: 5px
+    font-size: 15px
+    color: rgba($themeCol-titlesGlow, 0.7) !important
+    transition: color .3s cubic-bezier(.4,0,.2,1)
+    
+    &:hover
+      color: $themeCol-iconActive !important
+      
+    i
+      position: absolute
+      right: 15px
+      +M_VerticalCenterAbsolute
+      font-size: 24px
+      color: $themeCol-titlesGlow !important
+  
+  .q-toggle__inner--active+.q-toggle__label
+    color: $themeCol-iconActive !important
+    
+  .q-toggle__thumb:before
+    display: none !important
+  
+  .q-toggle__thumb-container
+    top: 13px !important
+  
+  .q-toggle__inner
+    padding: 16px 12px
+    height: 44px
+    width: 110px
+    min-width: 110px
+    
+    .q-toggle__track
+      opacity: 1 !important
+      color: rgba($themeCol-titlesGlow, 0.7) !important
+      border: 2px solid rgba($themeCol-titlesGlow, 0.7) !important
+      background-color: rgba($themeCol-ElementBackgroundAlt, 0.5) !important
+  
+    .q-icon
+      font-size: 14px !important
+      opacity: 1 !important
+      color: #000 !important
+  
+    &.q-toggle__inner--active
+      .q-toggle__track
+        background-color: rgba($themeCol-ElementBackgroundAlt, 0.9) !important
+        color: $themeCol-iconActive !important
+        border: 2px solid $themeCol-iconActive !important
+  
+      .q-toggle__thumb
+        border-color: $themeCol-iconActive !important
+
+    .q-toggle__thumb
+      opacity: 1
+      border-color: #c4ae8d
+      
+    &.q-toggle__inner--active .q-toggle__thumb-container
+      transform: translate3d(75px, 0, 0)
+
+
+.q-linear-progress
+  border-radius: 4px !important
+  height: 6px !important
+  
+  .q-linear-progress__track
+    background-color: $themeCol-taskSingleBG !important
+    border-radius: 4px !important
+    height: 6px !important
+  
+  .q-linear-progress__model
+    border-radius: 4px !important
+    background-color: $themeCol-taskSingleBGProgress !important
+
+    
+.q-carousel__prev-arrow .q-icon,
+.q-carousel__next-arrow .q-icon
+  filter: drop-shadow(0px 0px 1px #ffffff)
+  
+.q-checkbox__inner:before
+  display: none !important
+
+
+// Tabs
+.q-tab-panels
+  background-color: rgba(#444444, 0.7) !important
+  
+.q-tabs
+  margin-bottom: 5px  !important
+  background-color: rgba(#444444, 0.5) !important
+  
+  *
+    backface-visibility: hidden !important
+
+
+
+// CUSTOM
+.componentMenuDropdown
+  box-shadow: 3px 3px 19px rgba(0, 0, 0, 0.68) !important
+  border-radius: 2px 2px 5px 5px !important
+  border: 2px solid $themeCol-elementBorder !important

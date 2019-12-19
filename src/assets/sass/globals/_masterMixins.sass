@@ -1,0 +1,69 @@
+//MASTER - MIXINS
+
+// Full cover for absolute position
+=M_AbsoluteFullCover
+	position: absolute
+	top: 0
+	bottom: 0
+	right: 0
+	left: 0
+
+=M_VerticalCenterAbsolute
+	position: absolute
+	bottom: 50%
+	transform: translateY(50%)
+
+=M_HorizontalCenterAbsolute
+	position: absolute
+	right: 50%
+	transform: translateX(50%)
+
+=M_CenterAbsolute
+	position: absolute
+	bottom: 50%
+	right: 50%
+	transform: translate(50%,50%)
+
+=M_LinkMods
+	&:hover,
+	&:focus,
+	&:active
+		@content
+
+=M_ElipsisOneline
+	display: inline-block
+	text-overflow: ellipsis
+	width: 100%
+	overflow: hidden
+	white-space: nowrap
+
+=M_scrollbars($size, $foreground-color, $background-color: mix($foreground-color, white,  50%))
+  // For Google Chrome
+  
+  &::-webkit-scrollbar-track
+    border-radius: 10px
+    background-color: $background-color
+  
+  &::-webkit-scrollbar
+    width: $size
+  
+  &::-webkit-scrollbar-thumb
+    border-radius: 10px
+    background-color: $foreground-color
+  
+
+=M_clearfix
+	&:after
+		content: ""
+		display: table
+		clear: both
+
+=M_placeholder
+	&::-webkit-input-placeholder
+		@content
+	&:-moz-placeholder
+		@content
+	&::-moz-placeholder
+		@content
+	&:-ms-input-placeholder
+		@content
