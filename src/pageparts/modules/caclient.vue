@@ -126,7 +126,7 @@
 
         CAAssetMiniature.animateListItem(
           v-for='(asset) in filteredItemList'
-          :key='asset.title'
+          :key='asset.resource_id'
           transition='item'
 
           :mk-paths="MKPaths"

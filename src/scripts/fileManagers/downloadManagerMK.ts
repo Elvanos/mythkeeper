@@ -3,7 +3,7 @@
 /* ------------------------------ */
 
 // Libs
-import downloader from "@jinphen/download2"
+import downloader from "@elvanos/download"
 import fs from "fs-extra"
 import cheerio from "cheerio"
 
@@ -108,13 +108,13 @@ export default class downloadManagerMK {
               // If normal size
               if (maxSize) {
                 this.downloadProgress = (Math.floor(currentDownloadSize / maxSize * 100) > 100)? 100: Math.floor(currentDownloadSize / maxSize * 100)
+
               }
 
               // If lacking max size
               else{
                 this.downloadProgress = (currentDownloadSize / 1024 / 1024).toFixed(1) + " MB"
               }
-
             })
           })
           .then(({data, filename}) => {
@@ -133,6 +133,7 @@ export default class downloadManagerMK {
               else {
                 //@ts-ignore
                 downloadData.inputUrl = filesArray[0].downloadPath
+
                 runDownload()
               }
             }
@@ -146,6 +147,7 @@ export default class downloadManagerMK {
             }
 
           })
+
       }
       runDownload()
 

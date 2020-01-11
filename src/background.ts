@@ -111,6 +111,7 @@ function createWorkWindow () {
 
     // Load the index.html when not in development
     workWindow.loadURL("app://./index.html")
+
   }
 
 }
