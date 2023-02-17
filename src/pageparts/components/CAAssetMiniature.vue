@@ -1,57 +1,137 @@
 <template lang="pug">
 
-  .AssetMiniature(
-    :class="[\
-      {'-opened': showExtraInfo},\
-      {'isLocked': isLocked},\
-      {'-hiddenByFilter': !passedFilters},\
-      {'hasConfig': compatibleAsset === 'Compatible'}\
-    ]"
-  )
+.AssetMiniature(
+  :class="[\
+    {'-opened': showExtraInfo},\
+    {'isLocked': isLocked},\
+    {'-hiddenByFilter': !passedFilters},\
+    {'hasConfig': compatibleAsset === 'Compatible'}\
+  ]"
+)
 
-    DragonSpinner(v-show="isLocked")
+  DragonSpinner(v-show="isLocked")
 
-    .AssetMiniature__content
+  .AssetMiniature__content
 
-      .AssetMiniature__content__imageWrapper.clickable
+    .AssetMiniature__content__imageWrapper.clickable
 
-        // Image
-        template(v-if='assetData.icon_url !== null')
-          img( :src='assetData.icon_url')
-        template(v-if='assetData.icon_url === null')
-          img(:src="placeholderImage")
+      // Image
+      template(v-if='assetData.images[0]')
+        img( :src='assetData.images[0].src')
+      template(v-if='!assetData.images[0]')
+        img(:src="placeholderImage")
 
-        // Rating & reviews & downloads
-        .AssetMiniature__content__imageWrapper__fileDetails(v-if="assetData.resource_type !== 'external_purchase'")
+      // Rating & reviews & downloads
+      .AssetMiniature__content__imageWrapper__fileDetails(v-if="assetData.purchasable === false")
 
-          // Rating & reviews
-          .rating( :class='{incompatible: isMKCompatible}')
-            .stars
-              .overlay(:style='`width: ${ratingWidth};`')
-            .reviews
-              | {{ assetData.rating_count }} {{ grammarRatingsMultiple }}
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | Average rating: {{assetData.rating_avg}}/5
+        // Rating & reviews
+        .rating( :class='{incompatible: isMKCompatible}')
+          .stars
+            .overlay(:style='`width: ${ratingWidth};`')
+          .reviews
+            | {{ assetData.rating_count }} {{ grammarRatingsMultiple }}
+          q-tooltip(
+            :delay="300"
+            anchor="top middle"
+            self="bottom middle"
+            transition-show="jump-up"
+            transition-hide="jump-down")
+            | Average rating: {{parseInt(assetData.average_rating)}}/5
 
-          // Downloads
-          .downloads(:class='{incompatible: isMKCompatible}')
-            .amount
-              | {{ assetData.download_count }}
-            .subtitle
-              | downloads
+        // Downloads
+        .downloads(:class='{incompatible: isMKCompatible}')
+          .amount
+            | {{ assetData.total_sales }}
+          .subtitle
+            | downloads
 
-      // All of the basic info
-      .AssetMiniature__content__basicInfoWrapper
+    // All of the basic info
+    .AssetMiniature__content__basicInfoWrapper
 
-        .AssetMiniature__content__basicInfoWrapper__buyableAsset.shadow-3(v-if="assetData.resource_type === 'external_purchase'")
-          q-icon(
-            size="17px"
-            name="attach_money")
+      .AssetMiniature__content__basicInfoWrapper__buyableAsset.shadow-3(v-if="assetData.purchasable === true || hasPrice")
+        q-icon(
+          size="17px"
+          name="attach_money")
+
+        q-tooltip(
+          :delay="300"
+          anchor="top middle"
+          self="bottom middle"
+          transition-show="jump-up"
+          transition-hide="jump-down")
+          | This item has a price set to it.
+          br
+          | You can buy it for the uploader for <b>{{assetData.price}} € </b>
+
+      .title
+        | {{ assetData.name }}
+        br
+        | {{ assetData.id }}
+        q-tooltip(
+          :delay="300"
+          anchor="top middle"
+          self="bottom middle"
+          transition-show="jump-up"
+          transition-hide="jump-down")
+
+          b {{ assetData.name }}
+
+      //.author
+        .label
+          | Uploader
+
+          .iconGroup
+
+            // Icon - Author - URL
+            span(
+              v-if='assetData.User.website'
+              @click='openURL(assetData.User.website)')
+
+              q-icon(name="open_in_browser")
+
+              q-tooltip(
+                :delay="300"
+                anchor="top middle"
+                self="bottom middle"
+                transition-show="jump-up"
+                transition-hide="jump-down")
+
+                | Visit authors website at:
+                br
+                b {{ assetData.User.website }}
+
+            // Icon - Author - Donate
+            span(
+              v-if='assetData.custom_fields.donation_btn'
+              @click='openURL(assetData.custom_fields.donation_btn)')
+
+              q-icon(class="impGood" name="mdi-coffee")
+
+              q-tooltip(
+                :delay="300"
+                anchor="top middle"
+                self="bottom middle"
+                transition-show="jump-up"
+                transition-hide="jump-down")
+
+                | Consider donating to the author at:
+                br
+                b {{ assetData.custom_fields.donation_btn }}
+
+        // Author line
+        .content.author(
+          @click="triggerQuickSearchInput(assetData.username)"
+        )
+
+          .name
+            | {{ assetData.username }}
+
+          .icon
+            template(v-if='assetData.User.avatar_urls.s !== null')
+              img.shadow-1(:src='assetData.User.avatar_urls.s')
+            template(v-if='assetData.User.avatar_urls.s === null')
+              .backupAvatar.shadow-1(:style='`background-color:${authorBackupColor}`')
+                | {{ authorBackupAvatar }}
 
           q-tooltip(
             :delay="300"
@@ -59,77 +139,214 @@
             self="bottom middle"
             transition-show="jump-up"
             transition-hide="jump-down")
-            | This item has a price set to it.
+
+            | Filter by uploader:
             br
-            | You can buy it for the uploader for <b>{{assetData.price}} {{assetData.currency}}</b>
+            b {{ assetData.username }}
 
-        .title
-          | {{ assetData.title }}
+      // License
+      //.license
+        .label
+          | License &amp; Use:
+          .iconGroup
+
+        .impGood.content(
+          v-if="isCommerciallyUseable"
+          @click="triggerQuickSearchInput('commercial')"
+        )
+          q-icon(name="check")
+          q-icon(name="attach_money")
           q-tooltip(
             :delay="300"
             anchor="top middle"
             self="bottom middle"
             transition-show="jump-up"
             transition-hide="jump-down")
+            | Filter by commercial use:
+            br
+            b commercial
 
-            b {{ assetData.title }}
+        .impBad.content(
+          @click="triggerQuickSearchInput('personal')"
+          v-if="!isCommerciallyUseable")
 
-        .author
+          q-icon(name="check")
+          q-icon(name="not_interested")
+
+          q-tooltip(
+            :delay="300"
+            anchor="top middle"
+            self="bottom middle"
+            transition-show="jump-up"
+            transition-hide="jump-down")
+            | Filter by commercial use:
+            br
+            b personal
+
+        .content.licenseContent(
+          v-if="assetData.custom_fields.CCLicense && assetData.custom_fields.CCLicense !== 'OTHER'"
+          @click="triggerQuickSearchInput(`CC-${assetData.custom_fields.CCLicense}-4.0`)"
+        )
+          | CC-{{ assetData.custom_fields.CCLicense }}-4.0
+
+          q-tooltip(
+            :delay="300"
+            anchor="top middle"
+            self="bottom middle"
+            transition-show="jump-up"
+            transition-hide="jump-down")
+            | Filter by license:
+            br
+            b CC-{{ assetData.custom_fields.CCLicense }}-4.0
+
+        .content.licenseContent(
+          v-if="assetData.custom_fields.CCLicense && assetData.custom_fields.CCLicense === 'OTHER'"
+          @click="triggerQuickSearchInput(assetData.custom_fields.CCLicense)"
+        )
+          | {{ assetData.custom_fields.CCLicense }}
+
+          q-tooltip(
+            :delay="300"
+            anchor="top middle"
+            self="bottom middle"
+            transition-show="jump-up"
+            transition-hide="jump-down")
+            | Filter by license:
+            br
+            b {{ assetData.custom_fields.CCLicense }}
+
+      // Category & Prefix
+      .categoryPrefix
+        .label
+          | Categories
+
+        // Category
+        template(
+          v-if="[...assetData.categories.map(cat => cat.name)].length > 0"
+        )
+          .content(
+            v-for='(cat) in [...assetData.categories.filter(cat => cat.name !== "Licenses").map(cat => cat.name)]'
+            :key='cat'
+            @click="triggerQuickSearchInput(cat)"
+          )
+            q-icon(
+              name="mdi-cards")
+            | {{ cat }}
+
+            q-tooltip(
+              :delay="300"
+              anchor="top middle"
+              self="bottom middle"
+              transition-show="jump-up"
+              transition-hide="jump-down")
+              | Filter by category:
+              br
+              b {{ cat }}
+
+      // Commands
+      .commandLine
+
+        // View item
+        q-btn(
+          icon="open_in_browser"
+          outline
+          class="q-ml-sm"
+          color="primary"
+          @click="openCALink"
+        )
+
+          q-tooltip(
+            :delay="300"
+            anchor="top middle"
+            self="bottom middle"
+            transition-show="jump-up"
+            transition-hide="jump-down")
+            b View item details on the website
+            br
+            | (opens a new browser window).
+
+        // Download item
+        q-btn(
+          v-if="assetData.purchasable === false && !hasPrice && isInstalled === null"
+          icon="mdi-download"
+          outline
+          class="q-ml-sm"
+          color="primary"
+          @click="dialogIncompatibleCheck()"
+        )
+
+          q-tooltip(
+            :delay="300"
+            anchor="top middle"
+            self="bottom middle"
+            transition-show="jump-up"
+            transition-hide="jump-down")
+            | Download and install <b>{{ assetData.name }}</b>
+
+
+        // Update item
+        q-btn(
+          v-if="assetData.purchasable === false && !hasPrice && isInstalled === false"
+
+          class="q-highlight-secondaryCta"
+          icon="mdi-chevron-double-up"
+          outline
+          class="q-ml-sm"
+          color="primary"
+          @click="downloadItem(false,false)"
+        )
+
+          q-tooltip(
+            :delay="300"
+            anchor="top middle"
+            self="bottom middle"
+            transition-show="jump-up"
+            transition-hide="jump-down")
+            | Update <b>{{ assetData.name }}</b> to the newest version
+
+        // Up to date item
+        q-btn(
+          v-if="assetData.purchasable === false && !hasPrice && isInstalled === true"
+
+          class="q-highlight-pass"
+          icon="check"
+          outline
+          class="q-ml-sm"
+          color="primary"
+          @click="dialogIncompatibleCheck"
+        )
+
+          q-tooltip(
+            :delay="300"
+            anchor="top middle"
+            self="bottom middle"
+            transition-show="jump-up"
+            transition-hide="jump-down")
+            | <b>{{ assetData.name }}</b> Is already installed and up to date.
+            br
+            | If you wish, you can reinstall it or download another variation if available.
+
+    // Extended info
+    transition(
+      enter-active-class="animated slideInDown"
+      leave-active-class="animated slideOutUp")
+
+      .AssetMiniature__content__extendedInfoWrapper(
+        v-show="showExtraInfo"
+        )
+
+        .tags(v-if='assetData.tags.length !== 0')
+
           .label
-            | Uploader
+            | Tags
 
-            .iconGroup
-
-              // Icon - Author - URL
-              span(
-                v-if='assetData.User.website'
-                @click='openURL(assetData.User.website)')
-
-                q-icon(name="open_in_browser")
-
-                q-tooltip(
-                  :delay="300"
-                  anchor="top middle"
-                  self="bottom middle"
-                  transition-show="jump-up"
-                  transition-hide="jump-down")
-
-                  | Visit authors website at:
-                  br
-                  b {{ assetData.User.website }}
-
-              // Icon - Author - Donate
-              span(
-                v-if='assetData.custom_fields.donation_btn'
-                @click='openURL(assetData.custom_fields.donation_btn)')
-
-                q-icon(class="impGood" name="mdi-coffee")
-
-                q-tooltip(
-                  :delay="300"
-                  anchor="top middle"
-                  self="bottom middle"
-                  transition-show="jump-up"
-                  transition-hide="jump-down")
-
-                  | Consider donating to the author at:
-                  br
-                  b {{ assetData.custom_fields.donation_btn }}
-
-          // Author line
-          .content.author(
-            @click="triggerQuickSearchInput(assetData.username)"
+          .content(
+            :disabled='storeGetTaskList.length !== 0'
+            v-for='tag in [...assetData.tags.map(tag => tag.name)]'
+            :key='tag'
+            @click="triggerQuickSearchInput(tag)"
           )
-
-            .name
-              | {{ assetData.username }}
-
-            .icon
-              template(v-if='assetData.User.avatar_urls.s !== null')
-                img.shadow-1(:src='assetData.User.avatar_urls.s')
-              template(v-if='assetData.User.avatar_urls.s === null')
-                .backupAvatar.shadow-1(:style='`background-color:${authorBackupColor}`')
-                  | {{ authorBackupAvatar }}
+            | {{ tag }}
 
             q-tooltip(
               :delay="300"
@@ -138,286 +355,27 @@
               transition-show="jump-up"
               transition-hide="jump-down")
 
-              | Filter by uploader:
+              | Filter by tag:
               br
-              b {{ assetData.username }}
+              b {{ tag }}
 
-        // License
-        .license
+        //.description(v-if='assetData.tag_line')
+
           .label
-            | License &amp; Use:
-            .iconGroup
+            | Description
 
-          .impGood.content(
-            v-if="isCommerciallyUseable"
-            @click="triggerQuickSearchInput('commercial')"
-          )
-            q-icon(name="check")
-            q-icon(name="attach_money")
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | Filter by commercial use:
-              br
-              b commercial
+          .content(v-html='assetData.tag_line')
 
-          .impBad.content(
-            @click="triggerQuickSearchInput('personal')"
-            v-if="!isCommerciallyUseable")
+        .dates
 
-            q-icon(name="check")
-            q-icon(name="not_interested")
-
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | Filter by commercial use:
-              br
-              b personal
-
-          .content.licenseContent(
-            v-if="assetData.custom_fields.CCLicense && assetData.custom_fields.CCLicense !== 'OTHER'"
-            @click="triggerQuickSearchInput(`CC-${assetData.custom_fields.CCLicense}-4.0`)"
-          )
-            | CC-{{ assetData.custom_fields.CCLicense }}-4.0
-
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | Filter by license:
-              br
-              b CC-{{ assetData.custom_fields.CCLicense }}-4.0
-
-          .content.licenseContent(
-            v-if="assetData.custom_fields.CCLicense && assetData.custom_fields.CCLicense === 'OTHER'"
-            @click="triggerQuickSearchInput(assetData.custom_fields.CCLicense)"
-          )
-            | {{ assetData.custom_fields.CCLicense }}
-
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | Filter by license:
-              br
-              b {{ assetData.custom_fields.CCLicense }}
-
-        // Category & Prefix
-        .categoryPrefix
           .label
-            | Category & Prefix
-
-          // Category
-          template(
-            v-if="assetData.Category.title"
-          )
-            .content(
-              @click="triggerQuickSearchInput(assetData.Category.title)"
-            )
-              q-icon(
-                name="mdi-cards")
-              | {{ assetData.Category.title }}
-
-              q-tooltip(
-                :delay="300"
-                anchor="top middle"
-                self="bottom middle"
-                transition-show="jump-up"
-                transition-hide="jump-down")
-                | Filter by category:
-                br
-                b {{ assetData.Category.title }}
-
-          // Prefix
-          template(
-            v-if="assetData.prefix"
-          )
-            .content(
-              @click="triggerQuickSearchInput(assetData.prefix)"
-            )
-              q-icon(
-                name="mdi-terrain")
-              | {{ assetData.prefix }}
-              q-tooltip(
-                :delay="300"
-                anchor="top middle"
-                self="bottom middle"
-                transition-show="jump-up"
-                transition-hide="jump-down")
-                | Filter by prefix:
-                br
-                b {{ assetData.prefix }}
-
-        // Commands
-        .commandLine
-
-          // View item
-          q-btn(
-            icon="open_in_browser"
-            outline
-            class="q-ml-sm"
-            color="primary"
-            @click="openCALink"
-          )
-
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              b View item details on the website
-              br
-              | (opens a new browser window).
-
-          // Download item
-          q-btn(
-            v-if="assetData.resource_type !== 'external_purchase' && isInstalled === null"
-
-            icon="mdi-download"
-            outline
-            class="q-ml-sm"
-            color="primary"
-            @click="dialogIncompatibleCheck()"
-          )
-
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | Download and install <b>{{ assetData.title }}</b>
-
-
-          // Update item
-          q-btn(
-            v-if="assetData.resource_type !== 'external_purchase' && isInstalled === false"
-
-            class="q-highlight-secondaryCta"
-            icon="mdi-chevron-double-up"
-            outline
-            class="q-ml-sm"
-            color="primary"
-            @click="downloadItem(false,false)"
-          )
-
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | Update <b>{{ assetData.title }}</b> to the newest version
-
-          // Up to date item
-          q-btn(
-            v-if="assetData.resource_type !== 'external_purchase' && isInstalled === true"
-
-            class="q-highlight-pass"
-            icon="check"
-            outline
-            class="q-ml-sm"
-            color="primary"
-            @click="dialogIncompatibleCheck"
-          )
-
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | <b>{{ assetData.title }}</b> Is already installed and up to date.
-              br
-              | If you wish, you can reinstall it or download another variation if available.
-
-          // Buy item
-          span
-            q-btn(
-              v-if="assetData.resource_type === 'external_purchase'"
-
-              icon="attach_money"
-              outline
-              disable
-              class="q-ml-sm"
-              color="primary"
-              )
-
-            q-tooltip(
-              :delay="300"
-              anchor="top middle"
-              self="bottom middle"
-              transition-show="jump-up"
-              transition-hide="jump-down")
-              | We apologize, but we are unable to currently support external payment links
-              br
-              | due to issues with Cartography Asset's website API.
-              br
-              br
-              b This feature will hopefully be added in the future.
-
-      // Extended info
-      transition(
-        enter-active-class="animated slideInDown"
-        leave-active-class="animated slideOutUp")
-
-        .AssetMiniature__content__extendedInfoWrapper(
-          v-show="showExtraInfo"
-          )
-
-          .tags(v-if='assetData.tags.length !== 0 && assetData.tags')
-
-            .label
-              | Tags
-
-            .content(
-              :disabled='storeGetTaskList.length !== 0'
-              v-for='tag in assetData.tags'
-              :key='tag'
-              @click="triggerQuickSearchInput(tag)"
-            )
-              | {{ tag }}
-
-              q-tooltip(
-                :delay="300"
-                anchor="top middle"
-                self="bottom middle"
-                transition-show="jump-up"
-                transition-hide="jump-down")
-
-                | Filter by tag:
-                br
-                b {{ tag }}
-
-          .description(v-if='assetData.tag_line')
-
-            .label
-              | Description
-
-            .content(v-html='assetData.tag_line')
-
-          .dates
-
-            .label
-              | Last update
-            .content
-              | {{dateFormatLastUpload}}
-            .label
-              | First upload
-            .content
-              | {{dateFormatFirstUpload}}
+            | Last update
+          .content
+            | {{dateFormatLastUpload}}
+          .label
+            | First upload
+          .content
+            | {{dateFormatFirstUpload}}
 </template>
 
 <script lang="ts">
@@ -470,6 +428,7 @@ export default class CaClientModule extends BaseClass {
    */
   mounted(){
     this.isInstalled = this.assetData.updateState
+
   }
 
 
@@ -536,7 +495,8 @@ export default class CaClientModule extends BaseClass {
   @Watch("activeFilterContent",{ immediate: true,deep: true })
   watchActiveFilterContent(activeFilters: CAFilterContentInterface){
 
-    let licenseField = (this.assetData.custom_fields.CCLicense)? this.assetData.custom_fields.CCLicense: undefined
+
+    let licenseField = (this.assetData.custom_fields && this.assetData.custom_fields.CCLicense)? this.assetData.custom_fields.CCLicense: undefined
 
     if (licenseField && licenseField !== "OTHER") {
       licenseField =  `CC-${ licenseField }-4.0`
@@ -553,8 +513,12 @@ export default class CaClientModule extends BaseClass {
       updateState = "Not installed"
     }
 
+
+
     let mkCompatibility = ""
-    if (this.assetData.custom_fields.assetmanager && this.assetData.custom_fields.assetmanager.yes) {
+    if (this.assetData.attributes.find(single =>{
+      single.id === 9 && single.options && single.options[0] === "Yes"
+    })) {
       mkCompatibility = "Compatible"
     }
     else{
@@ -563,24 +527,24 @@ export default class CaClientModule extends BaseClass {
 
     // Local filter values
     const localFilterValues: CAFilterContentInterface = {
-      names: [this.assetData.title],
-      categories: [this.assetData.Category.title],
+      names: [this.assetData.name],
+      categories: [...this.assetData.categories.map(cat => cat.name)],
       prefixes: [this.assetData.prefix],
       authors: [this.assetData.username],
       compatibleMK: [mkCompatibility],
       installationState: [updateState],
-      commercialUses:[(this.assetData.custom_fields.license)? this.assetData.custom_fields.license: undefined],
+      commercialUses:[(this.assetData.custom_fields && this.assetData.custom_fields.license)? this.assetData.custom_fields.license: undefined],
       licenses:[licenseField],
-      tags: (this.assetData.tags)? this.assetData.tags: undefined
+      tags: [...this.assetData.tags.map(tag => tag.name)]
     }
 
     // Set the booleans
     const filterValues: any = {
-      authors: false,
-      prefixes: false,
+      //authors: false,
+      //prefixes: false,
       categories: false,
-      commercialUses: false,
-      licenses: false,
+      //commercialUses: false,
+      //licenses: false,
       compatibleMK: false,
       installationState: false,
       tags: false
@@ -588,11 +552,11 @@ export default class CaClientModule extends BaseClass {
 
     // Fields we want to specifically loop through
     const filterLoop: string[] = [
-      "authors",
-      "prefixes",
+      //"authors",
+      //"prefixes",
       "categories",
-      "commercialUses",
-      "licenses",
+      //"commercialUses",
+      //"licenses",
       "tags",
       "compatibleMK",
       "installationState"
@@ -625,11 +589,11 @@ export default class CaClientModule extends BaseClass {
 
             // Quick search needs just one single field to match in order to show the whole asset
             if(haystack.includes(needle)){
-              filterValues.authors = true
-              filterValues.prefixes = true
+              //filterValues.authors = true
+              //filterValues.prefixes = true
               filterValues.categories = true
-              filterValues.commercialUses = true
-              filterValues.licenses = true
+              //filterValues.commercialUses = true
+              //\filterValues.licenses = true
               filterValues.compatibleMK = true
               filterValues.installationState = true
               filterValues.tags = true
@@ -638,11 +602,11 @@ export default class CaClientModule extends BaseClass {
 
           // Each asset has only one name so compare against it
           if (localFilterValues.names[0].toLowerCase().includes(localQuickSearch.value.toLowerCase())) {
-            filterValues.authors = true
-            filterValues.prefixes = true
+            //filterValues.authors = true
+            //filterValues.prefixes = true
             filterValues.categories = true
-            filterValues.commercialUses = true
-            filterValues.licenses = true
+            //filterValues.commercialUses = true
+            //filterValues.licenses = true
             filterValues.compatibleMK = true
             filterValues.installationState = true
             filterValues.tags = true
@@ -676,11 +640,11 @@ export default class CaClientModule extends BaseClass {
 
     // If filters are not active, let everything through
     else{
-      filterValues.authors = true
-      filterValues.prefixes = true
+      //filterValues.authors = true
+      //filterValues.prefixes = true
       filterValues.categories = true
-      filterValues.commercialUses = true
-      filterValues.licenses = true
+      //filterValues.commercialUses = true
+      //filterValues.licenses = true
       filterValues.compatibleMK = true
       filterValues.installationState = true
       filterValues.tags = true
@@ -688,11 +652,11 @@ export default class CaClientModule extends BaseClass {
 
     // Compare all booleans to determine if to show the asset
     if (
-      filterValues.authors &&
-    filterValues.prefixes &&
-    filterValues.categories &&
-    filterValues.commercialUses &&
-    filterValues.licenses &&
+      //filterValues.authors &&
+    //filterValues.prefixes &&
+      filterValues.categories &&
+    //filterValues.commercialUses &&
+    //filterValues.licenses &&
     filterValues.tags &&
     filterValues.compatibleMK &&
     filterValues.installationState
@@ -732,9 +696,29 @@ export default class CaClientModule extends BaseClass {
    */
   @Prop() readonly childTriggerChecker!: boolean
 
+  get hasPrice(){
+
+    if(this.assetData.purchasable){return true}
+
+    const price = parseInt(this.assetData.price)
+
+    if(this.assetData.id === 5293){
+      console.log(price)
+    }
+
+    if(!isNaN(price) && price > 0){
+      return true
+    }
+
+    return false
+
+  }
+
   get compatibleAsset(){
 
-    if (this.assetData.custom_fields.assetmanager && this.assetData.custom_fields.assetmanager.yes) {
+    if (this.assetData.attributes.find(single =>{
+      return single.id === 9 && single.options && single.options[0] === "Yes"
+    })) {
       return "Compatible"
     }
     else{
@@ -768,7 +752,7 @@ export default class CaClientModule extends BaseClass {
    */
   get isLocked(){
     const lockExists = this.storeGetComponentLocks.find((singleLockPath)=>{
-      return singleLockPath === this.assetData.resource_id
+      return singleLockPath === this.assetData.id
     })
 
     // If we found the lock, lock the file, otherwise unlock it
@@ -789,7 +773,7 @@ export default class CaClientModule extends BaseClass {
    * Opens a link of Cartography Assets
    */
   openCALink() {
-    remote.shell.openExternal("https://www.cartographyassets.com/assets/" + this.$props.assetData.resource_id)
+    remote.shell.openExternal(this.$props.assetData.permalink)
   }
 
   /* ----------------------------------------------- */
@@ -803,10 +787,10 @@ export default class CaClientModule extends BaseClass {
   get isCommerciallyUseable(){
     let isCommerciallyUseable:boolean = false
 
-    if (this.assetData.custom_fields.license === "commercial"
-          || this.assetData.custom_fields.CCLicense === "BY"
-          || this.assetData.custom_fields.CCLicense === "BY_SA"
-          || this.assetData.custom_fields.CCLicense === "BY_ND") {
+    if (this.assetData.custom_fields && this.assetData.custom_fields.license === "commercial"
+          || (this.assetData.custom_fields && this.assetData.custom_fields.CCLicense === "BY")
+          || (this.assetData.custom_fields && this.assetData.custom_fields.CCLicense === "BY_SA")
+          || (this.assetData.custom_fields && this.assetData.custom_fields.CCLicense === "BY_ND")) {
       isCommerciallyUseable = true
     }
 
@@ -823,7 +807,7 @@ export default class CaClientModule extends BaseClass {
    * Determines the width of the golden star overlay.
    */
   get ratingWidth() {
-    const ratingWidth = (this.$props.assetData.rating_avg * 2) * 10
+    const ratingWidth = (this.$props.assetData.average_rating * 2) * 10
     return ratingWidth + "%"
   }
 
@@ -832,9 +816,9 @@ export default class CaClientModule extends BaseClass {
      */
   get grammarRatingsMultiple() {
     if (this.$props.assetData.rating_count === 1) {
-      return "rating"
+      return "reviews"
     } else {
-      return "ratings"
+      return "reviews"
     }
 
   }
@@ -1001,72 +985,25 @@ export default class CaClientModule extends BaseClass {
       inputUrl = false
     }
 
+    let hasPrepickedDownload = false
+
+    if(inputUrl === false){
+      console.log(this.assetData.downloads)
+      inputUrl = this.assetData.downloads["0"].file
+    }
+    else{
+      hasPrepickedDownload = true
+    }
+
     const currentTimeStamp:number = new Date().getTime()
     const tempFolder = this.mkPaths.mkTemp + "/" + currentTimeStamp
 
-    await new Promise((resolve) => {
-
-      // Lock item
-      this.storeAddComponentLock(this.assetData.resource_id)
-
-      // Set new task for the store and also set it locally for updates and removal later
-      const newTask = this.commitNewTask("Downloading", this.assetData.title)
-      const command: interfaceBackgroundRenderWork = {
-        command: "downloadItem-work",
-        status: "active",
-        progress: 0,
-        taskID: newTask.uniqueTaskID,
-        data: {
-          itemRecourseId: this.assetData.resource_id,
-          timeStamp: currentTimeStamp,
-          tempFolder: tempFolder,
-          mkPaths: this.mkPaths,
-          inputUrl: inputUrl
-        }
-      }
-
-      ipcRenderer.send("asynchronous-message", command)
-
-      // Set timer for reporting
-      const reportTimer = setInterval(() => {
-        const workList = remote.getCurrentWindow()["workList"]
-
-        let taskIndex: number = -1
-
-        workList.forEach((singleTask: interfaceBackgroundRenderWork, index) => {
-          if (singleTask.taskID === command.taskID) {
-            taskIndex = index
-          }
-        })
-
-        if (taskIndex !== -1) {
-
-          this.updateTask(newTask, workList[taskIndex].progress)
-
-        } else {
-
-          // Cleanup and removal of the task from the tasklist
-          clearInterval(reportTimer)
-          this.updateTask(newTask, 100)
-          this.removeTask(newTask)
-
-          resolve()
-
-        }
-
-      }, 1000)
-    })
 
     // Handle multi-file input
-    if (fs.existsSync(tempFolder+"/download.null")) {
+    if (this.assetData.downloads.length > 1 && !hasPrepickedDownload) {
 
-      const htmlContent = fs.readFileSync(tempFolder+"/download.null")
-      const HTMLReader = new DownloadManagerMK()
-      const dummyInput = {
-        itemRecourseId: this.assetData.resource_id
-      }
 
-      const downloadableItems = HTMLReader.readCAHtml(htmlContent,dummyInput)
+      const downloadableItems = this.assetData.downloads
 
       // Overlay dialog contents
       const overlayContents: overlayActionsInterface = {
@@ -1074,7 +1011,7 @@ export default class CaClientModule extends BaseClass {
         title: "Download file choice",
         downloadItems: downloadableItems,
         contents: `
-          <b>${this.assetData.title}</b> has multiple variations for download.
+          <b>${this.assetData.name}</b> has multiple variations for download.
           <br>
           Please chose which one do you wish to download.`,
         actions: [
@@ -1105,7 +1042,7 @@ export default class CaClientModule extends BaseClass {
           // Trigger dialog
           this.triggerDownloadChoiceDialog(overlayContents)
 
-          this.storeRemoveComponentLock(this.assetData.resource_id)
+          this.storeRemoveComponentLock(this.assetData.id)
           fs.removeSync(tempFolder)
 
         }
@@ -1113,11 +1050,68 @@ export default class CaClientModule extends BaseClass {
 
       return
     }
+    // Handle single file
+    else{
+      await new Promise((resolve) => {
+
+        // Lock item
+        this.storeAddComponentLock(this.assetData.id)
+
+        // Set new task for the store and also set it locally for updates and removal later
+        const newTask = this.commitNewTask("Downloading", this.assetData.name)
+        const command: interfaceBackgroundRenderWork = {
+          command: "downloadItem-work",
+          status: "active",
+          progress: 0,
+          taskID: newTask.uniqueTaskID,
+          data: {
+            itemRecourseId: this.assetData.id,
+            timeStamp: currentTimeStamp,
+            tempFolder: tempFolder,
+            mkPaths: this.mkPaths,
+            inputUrl: inputUrl
+          }
+        }
+
+        ipcRenderer.send("asynchronous-message", command)
+
+        // Set timer for reporting
+        const reportTimer = setInterval(() => {
+          const workList = remote.getCurrentWindow()["workList"]
+
+          let taskIndex: number = -1
+
+          workList.forEach((singleTask: interfaceBackgroundRenderWork, index) => {
+            if (singleTask.taskID === command.taskID) {
+              taskIndex = index
+            }
+          })
+
+          if (taskIndex !== -1) {
+
+            this.updateTask(newTask, workList[taskIndex].progress)
+
+          } else {
+
+            // Cleanup and removal of the task from the tasklist
+            clearInterval(reportTimer)
+            this.updateTask(newTask, 100)
+            this.removeTask(newTask)
+
+            //@ts-ignore
+            resolve()
+
+          }
+
+        }, 1000)
+      })
+
+    }
 
     const tempJSON = {
       vendors: {
-        cartographyassetsID: this.assetData.resource_id,
-        cartographyassetsVersion: this.assetData.last_update
+        cartographyassetsID: this.assetData.id,
+        cartographyassetsVersion:Date.parse(this.assetData.date_modified)
       }
     }
 
@@ -1131,7 +1125,7 @@ export default class CaClientModule extends BaseClass {
           tempJSON: tempJSON,
           tempFolderPath: tempFolder,
           unpackPath: tempFolder+"/"+tempFile,
-          componentLock: this.assetData.resource_id
+          componentLock: this.assetData.id
         }
         this.$emit("trigger-installer",output)
       }
@@ -1190,11 +1184,12 @@ export default class CaClientModule extends BaseClass {
 
 
   get dateFormatFirstUpload() {
-    return moment(this.assetData.resource_date, "X").format("D. MMM. YYYY, h:mm a")
+
+    return moment(Date.parse(this.assetData.date_modified), "X").format("D. MMM. YYYY, h:mm a")
   }
 
   get dateFormatLastUpload() {
-    return moment(this.assetData.last_update, "X").format("D. MMM. YYYY, h:mm a")
+    return moment(Date.parse(this.assetData.date_created), "X").format("D. MMM. YYYY, h:mm a")
   }
 }
 </script>

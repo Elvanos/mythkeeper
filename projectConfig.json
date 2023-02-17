@@ -1,0 +1,180 @@
+{
+    "projectName": "mythkeeper",
+    "status": "finished",
+    "isCategory": false,
+    "paths": {
+        "srcFolder": "src",
+        "distFolder": "dist"
+    },
+    "modules": {
+        "compilers": {
+            "javaScript": {
+                "support": true,
+                "sourceMaps": false,
+                "outputToRoot": false,
+                "distName": "layout",
+                "reporting": {
+                    "notification": true,
+                    "console": true
+                },
+                "allowMinify": {
+                    "support": true,
+                    "allowMain": true,
+                    "separateFiles": true
+                },
+                "buildHelper": {
+                    "support": true,
+                    "autoFix": {
+                        "support": true,
+                        "modules": {
+                            "fixNewFiles": true
+                        }
+                    },
+                    "autoBuild": {
+                        "support": true
+                    }
+                },
+                "additionalFiles": {
+                    "support": true,
+                    "overWriteOriginal": false,
+                    "onlyAdditional": false,
+                    "srcFolder": "_additionalFiles",
+                    "reporting": {
+                        "notification": true,
+                        "console": true
+                    },
+                    "allowMinify": {
+                        "support": true
+                    }
+                },
+                "modules": {
+                    "coffeeScript": {
+                        "support": true
+                    },
+                    "typeScript": {
+                        "support": true
+                    },
+                    "jsx": {
+                        "support": true
+                    },
+                    "babel": {
+                        "support": true
+                    }
+                }
+            },
+            "cssPreprocessors": {
+                "support": true,
+                "modules": {
+                    "nodeSass": {
+                        "support": true,
+                        "distName": "layout_nodeSass",
+                        "sourceMaps": true,
+                        "reporting": {
+                            "notification": true,
+                            "console": true
+                        },
+                        "allowMinify": {
+                            "support": true,
+                            "allowMain": true,
+                            "separateFiles": true,
+                            "level": 2
+                        },
+                        "additionalFiles": {
+                            "support": true,
+                            "srcFolder": "_additionalFiles",
+                            "ignoreFolder": "_ignore",
+                            "reporting": {
+                                "notification": true,
+                                "console": true
+                            }
+                        },
+                        "modules": {
+                            "autoPrefix": true
+                        }
+                    },
+                    "rubySass": {
+                        "support": true,
+                        "distName": "layout_rubySass",
+                        "sourceMaps": true,
+                        "reporting": {
+                            "notification": true,
+                            "console": true
+                        },
+                        "allowMinify": {
+                            "support": true,
+                            "allowMain": true,
+                            "separateFiles": true,
+                            "level": 2
+                        },
+                        "additionalFiles": {
+                            "support": true,
+                            "srcFolder": "_additionalFiles",
+                            "ignoreFolder": "_ignore",
+                            "reporting": {
+                                "notification": true,
+                                "console": true
+                            }
+                        },
+                        "modules": {
+                            "autoPrefix": true
+                        }
+                    },
+                    "less": {
+                        "support": false,
+                        "distName": "layout_less",
+                        "sourceMaps": true,
+                        "reporting": {
+                            "notification": true,
+                            "console": true
+                        },
+                        "allowMinify": {
+                            "support": true,
+                            "allowMain": true,
+                            "separateFiles": true,
+                            "level": 2
+                        },
+                        "additionalFiles": {
+                            "support": true,
+                            "srcFolder": "_additionalFiles",
+                            "ignoreFolder": "_ignore",
+                            "reporting": {
+                                "notification": true,
+                                "console": true
+                            }
+                        },
+                        "modules": {
+                            "autoPrefix": true
+                        }
+                    },
+                    "stylus": {
+                        "support": false,
+                        "distName": "layout_stylus",
+                        "sourceMaps": true,
+                        "reporting": {
+                            "notification": true,
+                            "console": true
+                        },
+                        "allowMinify": {
+                            "support": true,
+                            "allowMain": true,
+                            "separateFiles": true,
+                            "level": 2
+                        },
+                        "additionalFiles": {
+                            "support": true,
+                            "srcFolder": "_additionalFiles",
+                            "ignoreFolder": "_ignore",
+                            "reporting": {
+                                "notification": true,
+                                "console": true
+                            }
+                        },
+                        "modules": {
+                            "autoPrefix": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

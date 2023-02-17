@@ -33,7 +33,6 @@
       </h3>
       <p>Mythkeeper allows you to install, delete, back-up and overall manage assets along with using Wonderdraft.</p>
       <p>On top of it, we also added a partial theme and brush support management to the new version.</p>
-      <p>If that hasn't blown your mind yet: We also support direct download and automatic updating from the Cartography Assets website and a brand new feature called Profiles.</p>
       <h3 id="wiki_do_i_need_any_special_account.2Fregistration_to_run_mythkeeper.3F">
         Do I need any special account/registration to run Mythkeeper?
       </h3>
@@ -67,36 +66,37 @@
         <li><p><strong>Mythkeeper never truly deletes any of your assets except for overwriting with newer version or when you disable the safe deletion mode in the settings</strong>. Instead, it packs them in ZIP format in case you ever change your mind and want to retrieve them for reinstallation later.</p></li>
         <li><p><strong>Mythkeeper DOES NOT merge asset folders: When you are informed that something already exists if you chose to install anyway, the original file WILL be deleted irreversibly!</strong></p></li>
         <li>
-          <p><strong>Your files can exist in three states within the app:</strong>
-          <ul>
-            <li>
-              <strong>Active</strong> - Normal Wonderdraft asset folders in the Wonderdraft's user folder.
+          <p>
+            <strong>Your files can exist in three states within the app:</strong>
+            <ul>
+              <li>
+                <strong>Active</strong> - Normal Wonderdraft asset folders in the Wonderdraft's user folder.
 
-              <ul>
-                <li>Assets can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft\assets</li>
-                <li>Themes can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft\themes</li>
-                <li>Brushes can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft\brushes</li>
-              </ul>
-            </li>
-            <li>
-              <strong>Backup</strong> - These files are moved folders from the previously mentioned type. They will not show in Wonderdraft when you launch it, but Mythkeeper can still work with them.
+                <ul>
+                  <li>Assets can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft\assets</li>
+                  <li>Themes can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft\themes</li>
+                  <li>Brushes can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft\brushes</li>
+                </ul>
+              </li>
+              <li>
+                <strong>Backup</strong> - These files are moved folders from the previously mentioned type. They will not show in Wonderdraft when you launch it, but Mythkeeper can still work with them.
 
-              <ul>
-                <li>Assets can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft_mythKeeper\backup\assets</li>
-                <li>Themes can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft_mythKeeper\backup\themes</li>
-                <li>We don't currently allow for backup of brushes</li>
-              </ul>
-            </li>
-            <li>
-              <strong>Deleted</strong> - These files have been removed both from normal AND backup directories and have been packed into smaller ZIP archive folders. They can always be retrieved via Restore asset function inside Mythkeeper.
+                <ul>
+                  <li>Assets can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft_mythKeeper\backup\assets</li>
+                  <li>Themes can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft_mythKeeper\backup\themes</li>
+                  <li>We don't currently allow for backup of brushes</li>
+                </ul>
+              </li>
+              <li>
+                <strong>Deleted</strong> - These files have been removed both from normal AND backup directories and have been packed into smaller ZIP archive folders. They can always be retrieved via Restore asset function inside Mythkeeper.
 
-              <ul>
-                <li>Assets can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft_mythKeeper\deleted\assets</li>
-                <li>Themes can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft_mythKeeper\deleted\themes</li>
-                <li>We don't currently allow for deletion of brushes via the program</li>
-              </ul>
-            </li>
-          </ul>
+                <ul>
+                  <li>Assets can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft_mythKeeper\deleted\assets</li>
+                  <li>Themes can be found here: C:\Users&lt;YOUR USER NAME&gt;\AppData\Roaming\Wonderdraft_mythKeeper\deleted\themes</li>
+                  <li>We don't currently allow for deletion of brushes via the program</li>
+                </ul>
+              </li>
+            </ul>
           </p>
         </li>
         <li><p><strong>Unified folder structure of assets and themes</strong> - All assets and themes that are Mythkeeper compatible will come in prebuild way. If the asset package isn't up to the standards, then Mythkeeper will inform of this and ask you if you still wish to install (even if the result will likely not work).</p></li>
@@ -107,7 +107,7 @@
       <h3 id="wiki_basic_explanation">
         Basic explanation
       </h3>
-      <p>Mythkeeper comes packed with five base modules that can be toggled via the left control column - The welcomes screen, the asset module, the theme module, the Cartography Assets module and finally the profiles module (needs to allowed via Settings.)</p>
+      <p>Mythkeeper comes packed with four base modules that can be toggled via the left control column - The welcomes screen, the asset module, the theme module and finally the profiles module (needs to allowed via Settings.)</p>
       <p>On top of these, the left control column also contains a Settings button which opens an overlay lightbox with setting related to how the app functions.</p>
       <p>At the very bottom, you can find three small buttons - force refresh of the whole app (if something goes REALLY wrong), developer tools (in case you want to keep under the hood) and guides (opens a guide menu for those who are lost, curious or just uncertain).</p>
       <h3 id="wiki_profiles">

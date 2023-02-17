@@ -1,146 +1,146 @@
 <template lang="pug">
-  .ModuleCaClient
+.ModuleCaClient
 
-    // Top bar
-    ModuleTopBar(
-      :profile-list='profileList'
-      @trigger-ini-update='updateProfileIniWD')
+  // Top bar
+  ModuleTopBar(
+    :profile-list='profileList'
+    @trigger-ini-update='updateProfileIniWD')
 
-      // Left slot of the bar
-      template(v-slot:leftSide)
+    // Left slot of the bar
+    template(v-slot:leftSide)
 
-        // Button - Sync item list
-        q-btn(
-          icon="sync"
-          outline
-          :ripple="false"
-          class="q-ml-sm"
-          color="primary"
+      // Button - Sync item list
+      q-btn(
+        icon="sync"
+        outline
+        :ripple="false"
+        class="q-ml-sm"
+        color="primary"
 
-          :disable='storeGetTaskList.length !== 0'
-          @click='reloadLocalItemData')
+        :disable='storeGetTaskList.length !== 0'
+        @click='reloadLocalItemData')
 
-          q-tooltip(
-            :delay="300"
-            transition-show="jump-down"
-            transition-hide="jump-up")
+        q-tooltip(
+          :delay="300"
+          transition-show="jump-down"
+          transition-hide="jump-up")
 
-            b Sync the item list
+          b Sync the item list
+          template(v-if='storeGetIsRichTooltipsAllowed')
+            br
+            | Use if any of the items don't update after installation
+
+      // Button - Update all items
+      q-btn(
+        icon="mdi-chevron-double-up"
+        :class="(updateAvailableList.length === 0) ? 'q-highlight-pass' : 'q-highlight-secondaryCta'"
+        outline
+        :ripple="false"
+        class="q-ml-sm"
+        color="primary"
+        :disable='storeGetTaskList.length !== 0 || updateAvailableList.length === 0'
+        @click="triggerChildUpdate"
+        )
+
+        q-badge(
+          v-if="updateAvailableList.length !== 0"
+          color="red-10"
+          floating
+        )
+          | {{updateAvailableList.length}}
+
+        q-tooltip(
+          :delay="300"
+          transition-show="jump-down"
+          transition-hide="jump-up")
+
+          template(
+            v-if="updateAvailableList.length === 0"
+          )
+            b All items are up to date.
+            br
+            | Nothing to update.
+
+          template(
+            v-if="updateAvailableList.length !== 0"
+          )
+            b Update all items
+
             template(v-if='storeGetIsRichTooltipsAllowed')
               br
-              | Use if any of the items don't update after installation
-
-        // Button - Update all items
-        q-btn(
-          icon="mdi-chevron-double-up"
-          :class="(updateAvailableList.length === 0) ? 'q-highlight-pass' : 'q-highlight-secondaryCta'"
-          outline
-          :ripple="false"
-          class="q-ml-sm"
-          color="primary"
-          :disable='storeGetTaskList.length !== 0 || updateAvailableList.length === 0'
-          @click="triggerChildUpdate"
-          )
-
-          q-badge(
-            v-if="updateAvailableList.length !== 0"
-            color="red-10"
-            floating
-          )
-            | {{updateAvailableList.length}}
-
-          q-tooltip(
-            :delay="300"
-            transition-show="jump-down"
-            transition-hide="jump-up")
-
-            template(
-              v-if="updateAvailableList.length === 0"
-            )
-              b All items are up to date.
+              | Updates all available items on the list that have an update available.
               br
-              | Nothing to update.
+              br
+              | Available updates:
+              div(
+                v-for="item in updateAvailableList"
+                :key="item.title"
+              )
+                b {{item.title}}
 
-            template(
-              v-if="updateAvailableList.length !== 0"
-            )
-              b Update all items
+    // Right slot of the bar
+    template(v-slot:rightSide)
 
-              template(v-if='storeGetIsRichTooltipsAllowed')
-                br
-                | Updates all available items on the list that have an update available.
-                br
-                br
-                | Available updates:
-                div(
-                  v-for="item in updateAvailableList"
-                  :key="item.title"
-                )
-                  b {{item.title}}
+      // Switch - Show/Hide details of items in the list
+      q-toggle.q-mr-md(
+        :class="[{'-active': showExtendedInfoOnMiniatures},'-dense']"
+        :ripple="false"
+        checked-icon="mdi-eye-outline"
+        unchecked-icon="mdi-eye-off-outline"
+        v-model="showExtendedInfoOnMiniatures"
+        label="Show details"
+      )
 
-      // Right slot of the bar
-      template(v-slot:rightSide)
+      // Filters
+      //CAclientFilter(
+        :filterQuickSearchUpdate="filterQuickSearchUpdate"
+        :filterContents="filterContents"
+        @trigger-filter-input="applyFiltersToList"
+      //)
 
-        // Switch - Show/Hide details of items in the list
-        q-toggle.q-mr-md(
-          :class="[{'-active': showExtendedInfoOnMiniatures},'-dense']"
-          :ripple="false"
-          checked-icon="mdi-eye-outline"
-          unchecked-icon="mdi-eye-off-outline"
-          v-model="showExtendedInfoOnMiniatures"
-          label="Show details"
-        )
+  // Content
+  .moduleWrapper
 
-        // Filters
-        CAclientFilter(
-          :filterQuickSearchUpdate="filterQuickSearchUpdate"
-          :filterContents="filterContents"
-          @trigger-filter-input="applyFiltersToList"
-        )
+    .tempModule(v-if="!isFinishedLoading")
+      .moduleTitle
+        | CA Client
 
-    // Content
-    .moduleWrapper
+      .introText
+        p Retrieving a list of items from the website!
+        p Hang on tight!
 
-      .tempModule(v-if="!isFinishedLoading")
-        .moduleTitle
-          | CA Client
+      q-card.bg-grey-9.q-mt-lg.loader
+        q-card-section
+          | Items retrieved: {{retrievedListLength}} / {{allItemsLength}}
+        q-card-section(v-if="isFinishedFetching")
+          | Rendering the item list
+          br
+          | (this may lag for a second)
+        q-card-section
+          DragonSpinner
 
-        .introText
-          p Retrieving a list of items from the website!
-          p Hang on tight!
+    // Fancy animation :o
+    transition-group(
+      name='list'
+      tag='span')
 
-        q-card.bg-grey-9.q-mt-lg.loader
-          q-card-section
-            | Items retrieved: {{retrievedListLength}}
-          q-card-section(v-if="isFinishedFetching")
-            | Rendering the item list
-            br
-            | (this may lag for a second)
-          q-card-section
-            DragonSpinner
+      CAAssetMiniature.animateListItem(
+        v-for='(asset, key) in filteredItemList'
+        :key='asset.id'
+        transition='item'
 
-      // Fancy animation :o
-      transition-group(
-        name='list'
-        tag='span')
+        :mk-paths="MKPaths"
+        :asset-data="asset"
+        :show-extra-info='showExtendedInfoOnMiniatures'
+        :active-filter-content='activeFilterContent'
 
-        CAAssetMiniature.animateListItem(
-          v-for='(asset) in filteredItemList'
-          :key='asset.resource_id'
-          transition='item'
+        :child-trigger-checker="childTriggerChecker"
+        :child-trigger-update="childTriggerUpdate"
 
-          :mk-paths="MKPaths"
-          :asset-data="asset"
-          :show-extra-info='showExtendedInfoOnMiniatures'
-          :active-filter-content='activeFilterContent'
-
-          :child-trigger-checker="childTriggerChecker"
-          :child-trigger-update="childTriggerUpdate"
-
-          @trigger-installer="triggerInstaller"
-          @recheck-item="reloadLocalItemData"
-          @trigger-quick-search-input='triggerQuickSearchInput'
-        )
+        @trigger-installer="triggerInstaller"
+        @recheck-item="reloadLocalItemData"
+        @trigger-quick-search-input='triggerQuickSearchInput'
+      )
 
 </template>
 
@@ -148,6 +148,7 @@
 
 // Libs
 import fs from "fs-extra"
+import WooCommerceAPI from "woocommerce-api"
 
 // Module template
 import ModuleTemplate from "@/scripts/classes/moduleTemplate"
@@ -216,10 +217,9 @@ export default class CaClientModule extends ModuleTemplate {
    */
   buildFilterData(){
 
-
     this.fetchedItemList.forEach((item: any)=>{
 
-      let licenseField = (item.custom_fields.CCLicense)? item.custom_fields.CCLicense: undefined
+      let licenseField = (item.custom_fields && item.custom_fields.CCLicense)? item.custom_fields.CCLicense: undefined
       if (licenseField && licenseField !== "OTHER") {
         licenseField =  `CC-${ licenseField }-4.0`
       }
@@ -236,7 +236,9 @@ export default class CaClientModule extends ModuleTemplate {
       }
 
       let mkCompatibility = ""
-      if (item.custom_fields.assetmanager && item.custom_fields.assetmanager.yes) {
+      if (item.attributes.find(single =>{
+        single.id === 9 && single.options && single.options[0] === "Yes"
+      })) {
         mkCompatibility = "Compatible"
       }
       else{
@@ -244,15 +246,15 @@ export default class CaClientModule extends ModuleTemplate {
       }
 
       const filterUpdateValue: CAFilterContentInterface = {
-        names: [item.title],
-        categories: [item.Category.title],
+        names: [item.name],
+        categories: [...item.categories.map(cat => cat.name)],
         prefixes: [item.prefix],
         authors: [item.username],
         installationState: [updateState],
         compatibleMK: [mkCompatibility],
-        commercialUses:[(item.custom_fields.license)? item.custom_fields.license: undefined],
+        commercialUses:[(item.custom_fields && item.custom_fields.license)? item.custom_fields.license: undefined],
         licenses:[licenseField],
-        tags: (item.tags)? item.tags: undefined
+        tags: [...item.tags.map(tag => tag.name)]
       }
       this.triggerUpdateFilter(filterUpdateValue)
     })
@@ -286,25 +288,25 @@ export default class CaClientModule extends ModuleTemplate {
     }
 
     // Merge unique "Prefixes"
-    if (filterUpdateValue.prefixes[0] !== undefined) {
+    /*if (filterUpdateValue.prefixes[0] !== undefined) {
       this.filterContents.prefixes = [...new Set([...filterUpdateValue.prefixes, ...this.filterContents.prefixes])]
-    }
+    }*/
 
     // Merge unique "Authors"
-    if (filterUpdateValue.authors[0] !== undefined) {
+    /*  if (filterUpdateValue.authors[0] !== undefined) {
       this.filterContents.authors = [...new Set([...filterUpdateValue.authors, ...this.filterContents.authors])]
-    }
+    } */
 
     // Merge unique "Commercial uses"
-    if (filterUpdateValue.commercialUses[0] !== undefined) {
+    /*   if (filterUpdateValue.commercialUses[0] !== undefined) {
       this.filterContents.commercialUses = [...new Set([...filterUpdateValue.commercialUses, ...this.filterContents.commercialUses])]
     }
-
+ */
     // Merge unique "Licenses"
-    if (filterUpdateValue.licenses[0] !== undefined) {
+    /*  if (filterUpdateValue.licenses[0] !== undefined) {
       this.filterContents.licenses = [...new Set([...filterUpdateValue.licenses, ...this.filterContents.licenses])]
     }
-
+ */
     // Merge unique "Tags"
     if (filterUpdateValue.tags[0] !== undefined) {
       this.filterContents.tags = [...new Set([...filterUpdateValue.tags, ...this.filterContents.tags])]
@@ -489,8 +491,11 @@ export default class CaClientModule extends ModuleTemplate {
   async firstLoadSources(){
 
     Promise.all([this.readConfigFiles(), this.retrievePagesFromCA()]).then((values) => {
+
       let fileConfigs, assetList
       [fileConfigs, assetList] = values
+
+      //console.log(assetList)
 
       this.getListAndSetFilterBase(assetList)
 
@@ -594,7 +599,7 @@ export default class CaClientModule extends ModuleTemplate {
   /**
    * A raw list of fetched items from CA after the bare-bones filter of the completely incompatible ones.
    */
-  fetchedItemList = []
+  fetchedItemList: any[] = []
 
   /**
    * A fully filtered and prepared list of assets that went through proper filtering
@@ -605,7 +610,9 @@ export default class CaClientModule extends ModuleTemplate {
   /**
    *
    */
-  retrievedListLength = 0
+  retrievedListLength: number = 0
+
+  allItemsLength: number|string = "N/A"
 
 
   isFinishedFetching = false
@@ -619,41 +626,65 @@ export default class CaClientModule extends ModuleTemplate {
     return await new Promise((resolve,reject) =>{
       let pageNum = 1
       let assetList = []
+      let maxPage = 0
+
+      let firstRun = false
+
+      const WooCommerce = new WooCommerceAPI({
+        url: "https://cartographyassets.com/",
+        consumerKey: "ck_7686419cec8ee02a3bcc8f7c0c6d92b457907808",
+        consumerSecret: "cs_44464aa86706aa1e87dcb3c80cc6e2fb82604dce",
+        wpAPI: true,
+        version: "wc/v1"
+      })
+
+
+      WooCommerce.get("products/categories?per_page=100", (err,body,result) => {
+        console.log(JSON.parse(result))
+      })
+
 
       const cyclePages = () => {
-        this.axios.get(
-          `https://www.cartographyassets.com/api/resources?with_posts&page=${pageNum}`,
-          {
-            headers: {
-              "XF-Api-Key": "3NY1F9gFZ_Agmp9FLfiy8US17kcKHDGn"
-            }
-          }
-        )
-          .then((response) => {
-            pageNum++
 
-            assetList = assetList.concat(response.data.resources)
+        WooCommerce.get(`products?page=${pageNum}&per_page=100&category=216`, (err,body,result) => {
 
-            if (pageNum - 1 < response.data.pagination.last_page) {
-              this.retrievedListLength = assetList.length
-              cyclePages()
-            } else {
-              this.retrievedListLength = assetList.length
-              this.isFinishedFetching = true
-
-              setTimeout(()=>{
-                resolve(assetList)
-              },1000)
-            }
-
-          }
-          ).catch((err) => {
+          if(err){
             console.log(err)
             reject()
             //@ts-ignore
             this.$awn.alert("Attempt to connect to Cartographyassets.com has failed.")
+            return
           }
-          )
+
+          if(!firstRun){
+            firstRun = true
+            maxPage = body.headers["x-wp-totalpages"]
+            this.allItemsLength = body.headers["x-wp-total"]
+          }
+
+          pageNum++
+
+          assetList = assetList.concat(JSON.parse(result))
+
+          if (pageNum - 1 < maxPage) {
+            this.retrievedListLength = assetList.length
+            cyclePages()
+            return
+          } else {
+            this.retrievedListLength = assetList.length
+            this.isFinishedFetching = true
+
+            setTimeout(()=>{
+              resolve(assetList)
+              return
+            },1000)
+          }
+        })
+
+        /*  .catch((err) => {
+
+
+          })*/
       }
       cyclePages()
     })
@@ -666,68 +697,19 @@ export default class CaClientModule extends ModuleTemplate {
    */
   getListAndSetFilterBase(itemList){
 
-    const blacklistCategoryList = {
-      // Mythkeeper
-      mythkeeper: [73],
+    // TODO add filters if needed
 
-      // Campaign Cartographer
-      cnc: [76],
+    //itemList = itemList.filter(single => single.name.includes("Avoro"))
 
-      // Wonderdraft
-      themes: [48],
-
-      // Mapforge
-      mapforge: [63,64],
-
-      // Azgaar's generator
-      azgars: [87,92,88,89],
-
-      // Photoshop
-      photoshop: [6],
-
-      // Battlemaps
-      battlemaps: [69, 70, 71]
-
-    }
-
-    const blacklistPrefixList = {
-      // CA manuals and similar
-      caOfficial: [39],
-    }
-
-    // Filter out non-compatible
-    itemList = itemList
-      .filter(singleItem => {
-
-        return (
-        // Categories
-          !blacklistCategoryList.battlemaps.includes(singleItem.resource_category_id)
-            &&
-            !blacklistCategoryList.mapforge.includes(singleItem.resource_category_id)
-            &&
-            !blacklistCategoryList.photoshop.includes(singleItem.resource_category_id)
-            &&
-            !blacklistCategoryList.mythkeeper.includes(singleItem.resource_category_id)
-            &&
-            !blacklistCategoryList.azgars.includes(singleItem.resource_category_id)
-            &&
-            !blacklistCategoryList.cnc.includes(singleItem.resource_category_id)
-        )
-            &&
-            // Prefixes
-            (
-              !blacklistPrefixList.caOfficial.includes(singleItem.prefix_id)
-            )
-
-        // Filter for testing purposes
-        /*&&(
-          singleItem.title.includes("Elvanos") || singleItem.title.includes("Avoro")
-        )*/
-
-      }
-      )
+    //itemList = itemList.filter(single => single.downloads.length > 1)
 
     this.fetchedItemList = itemList
+
+    this.fetchedItemList.forEach(e => {
+      if(e.id === 5293){
+        console.log(e)
+      }
+    })
 
   }
 
@@ -745,8 +727,8 @@ export default class CaClientModule extends ModuleTemplate {
   determineItemInstallationState(){
     const determinedList = this.fetchedItemList.map((item:any) => {
 
-      const resourceID = item.resource_id
-      const resourceVersion = item.last_update
+      const resourceID = item.id
+      const resourceVersion = Date.parse(item.date_modified)
 
       // Reset at the start
       item.updateState = null

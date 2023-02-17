@@ -20,7 +20,7 @@
           title="Download Variations"
           :data="storeGetOverLayContents.downloadItems"
           :columns="tableHeader"
-          row-key="fileName"
+          row-key="name"
           selection="single"
           dark
           :selected.sync="parameterOutput"
@@ -76,7 +76,7 @@ export default class OverlayDownloadChoiceDialog extends BaseClass {
       required: true,
       label: "File Name",
       align: "left",
-      field: row => row.fileName,
+      field: row => row.name,
       format: val => `${val}`,
       sortable: true
     }
@@ -84,6 +84,8 @@ export default class OverlayDownloadChoiceDialog extends BaseClass {
 
   created() {
     this.storeSetIsCloseableOverlay(true)
+
+    console.log(this.storeGetOverLayContents.downloadItems)
   }
 
   processRequest(toRunFunction: any, param?:any){
@@ -97,7 +99,7 @@ export default class OverlayDownloadChoiceDialog extends BaseClass {
     }
 
     if (param) {
-      param.data = this.parameterOutput[0].downloadPath
+      param.data = this.parameterOutput[0].file
     }
 
 

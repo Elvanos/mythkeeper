@@ -60,7 +60,7 @@ import welcome from "@/pageparts/modules/welcome.vue"
 import assets from "@/pageparts/modules/assets.vue"
 import themes from "@/pageparts/modules/themes.vue"
 import profiles from "@/pageparts/modules/profiles.vue"
-import caclient from "@/pageparts/modules/caclient.vue"
+//import caclient from "@/pageparts/modules/caclient.vue"
 
 // Overlays
 import settings from "@/pageparts/overlays/settings.vue"
@@ -85,7 +85,7 @@ import OverlayGuide from "@/pageparts/overlays/guide.vue"
     themes,
     profiles,
     welcome,
-    caclient,
+    //caclient,
 
     // Overlays
     settings,
@@ -165,6 +165,7 @@ export default class App extends BaseClass {
     this.storeResetComponentLocks()
     this.storeResetInstallationQueue()
 
+    // TODO comment this out
     //this.storeSetActiveModule("caclient")
 
     // Check if necessary folders exist and set the settings accordingly

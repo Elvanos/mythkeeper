@@ -99,7 +99,7 @@ import { Getter,Action } from "vuex-class"
 //@ts-ignore
 import module_assets from "../../assets/moduleGuides/module_assets.png"
 //@ts-ignore
-import module_caclient from "../../assets/moduleGuides/module_caclient.png"
+//import module_caclient from "../../assets/moduleGuides/module_caclient.png"
 //@ts-ignore
 import module_profiles from "../../assets/moduleGuides/module_profiles.png"
 //@ts-ignore
@@ -144,11 +144,11 @@ export default class OverlayGuide extends BaseClass {
     }
 
     if (this.storeGetActiveModule === "caclient") {
-      this.slide = 3
+      //this.slide = 3
     }
 
     if (this.storeGetActiveModule === "profiles") {
-      this.slide = 4
+      this.slide = 3
     }
 
   }
@@ -166,7 +166,7 @@ export default class OverlayGuide extends BaseClass {
     "Welcome Screen",
     "Assets Module",
     "Themes Module",
-    "Cartography Assets Client Module",
+    //"Cartography Assets Client Module",
     "Profiles Module",
 
   ]
@@ -175,7 +175,7 @@ export default class OverlayGuide extends BaseClass {
     module_welcome,
     module_assets,
     module_themes,
-    module_caclient,
+    //module_caclient,
     module_profiles,
   ]
 

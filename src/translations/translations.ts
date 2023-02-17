@@ -1,4 +1,4 @@
-export default{
+export default {
   globals: {
     licenseStatuses: {
       allowed: "Allowed",
@@ -11,8 +11,9 @@ export default{
     }
   },
   moduleTemplate: {
-    awn:{
-      checkMKFoldersWarning:(path) =>{return `
+    awn: {
+      checkMKFoldersWarning: (path) => {
+        return /*html*/`
         Profile not found - reseted to "Default".
         <br>
         Wondedraft INI reseted to default as well.
@@ -23,7 +24,7 @@ export default{
         <b>${path}</b>
         `
       },
-      updateProfileIniWDWarning: `
+      updateProfileIniWDWarning: /*html*/`
         <strong>Mythkeeper could not load the Wonderdraft configuration file (config.ini):</strong>
         <br>
         1. Please check settings if the Wonderdraft user folder path is set properly.
@@ -31,7 +32,8 @@ export default{
         2. If your path is set properly, then please check if the config file exists in the directory.
         <br>
         3. If it doesn't, start Wonderdraft once to generate it.`,
-      updateProfileIniWDSuccess: (path) =>{return `
+      updateProfileIniWDSuccess: (path) => {
+        return `
         Profile successfully set.
         <br>
         Currently used directory:
@@ -40,17 +42,17 @@ export default{
       }
     }
   },
-  installer:{
+  installer: {
     taskTexts: {
       asset: "Installing asset",
       theme: "Installing theme",
       brush: "Installing brush"
     },
-    awn:{
+    awn: {
       success: {
-        assetInstalled: (assetTitle) => {return `Asset <b>${assetTitle}</b> has been successfully installed.`},
-        brushInstalled: (assetTitle) => {return `Brush <b>${assetTitle}</b> has been successfully installed.`},
-        themeInstalled: (assetTitle) => {return `Theme <b>${assetTitle}</b> has been successfully installed.`}
+        assetInstalled: (assetTitle) => { return `Asset <b>${assetTitle}</b> has been successfully installed.` },
+        brushInstalled: (assetTitle) => { return `Brush <b>${assetTitle}</b> has been successfully installed.` },
+        themeInstalled: (assetTitle) => { return `Theme <b>${assetTitle}</b> has been successfully installed.` }
       }
     }
   },
@@ -109,7 +111,8 @@ export default{
       },
       backupAsset: {
         title: "Backup asset: ",
-        contents: (currentVersion, backupVersion) =>{return`
+        contents: (currentVersion, backupVersion) => {
+          return `
           <b>The asset seems to be backup up already.</b>
           <br>
           <br>
@@ -149,12 +152,12 @@ export default{
       backupAsset: "Backing up",
 
     },
-    awn:{
+    awn: {
       success: {
-        assetDeleteBackup: (assetTitle) => {return `Backup of asset <b>${assetTitle}</b> has been successfully deleted.`},
-        assetRecover: (assetTitle) => {return `Asset <b>${(assetTitle)}</b> has been successfully recovered.`},
-        assetBackup: (assetTitle) => {return `Asset <b>${assetTitle}</b> has been successfully backed up.`},
-        assetDelete: (assetTitle) => {return `Asset <b>${assetTitle}</b> has been successfully deleted.`},
+        assetDeleteBackup: (assetTitle) => { return `Backup of asset <b>${assetTitle}</b> has been successfully deleted.` },
+        assetRecover: (assetTitle) => { return `Asset <b>${(assetTitle)}</b> has been successfully recovered.` },
+        assetBackup: (assetTitle) => { return `Asset <b>${assetTitle}</b> has been successfully backed up.` },
+        assetDelete: (assetTitle) => { return `Asset <b>${assetTitle}</b> has been successfully deleted.` },
       }
     }
   }

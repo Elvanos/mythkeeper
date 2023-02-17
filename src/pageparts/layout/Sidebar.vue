@@ -34,7 +34,7 @@
       modulename='themes')
 
     // Button - Cartography Assets module
-    SidebarButton(
+    //SidebarButton(
       :title='`CA Client`'
       :heading='`CA Client`'
       modulename='caclient')
